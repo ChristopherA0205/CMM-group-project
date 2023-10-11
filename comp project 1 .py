@@ -3,6 +3,7 @@
 Created on Thu Oct  5 22:19:21 2023
 
 @author: brodi
+@edit: ben
 """
 
 import numpy as np
@@ -123,6 +124,7 @@ K=params[0]
 C_D_0=params[2]
 
 #inputs
+# values are m = mass, g = gravity, V = Velocity, p = ??, S = wing surface area, PA = path angle, roundval = values we want answers rounded to 
 m=1300
 g=9.81
 V=100
@@ -130,6 +132,7 @@ p=1.0065
 S=20
 W=m*g
 PA=0.05
+roundval = 4
 
 #alpha=array degrees A=array in radians Alpha=specific alpha in radians
 CL=C_L_0+C_L_a*alpha+C_L_del_E*((-C_M_0+C_M_a*alpha)/C_M_del_E)
@@ -200,9 +203,15 @@ L1=0.5*p*V**2*S*C_L_1
 
 T=(-(L1/m)*np.sin(Alpha)+(D/m)*np.cos(Alpha)+(W/m)*np.sin(Theta))*m
 
-print("the value of Alpha is", Alpha)
-print("the value of Del_e is", Del_E)
-print("The value of T is", T)
+Alpha = round(Alpha, roundval)
+Del_E = round(Del_E, roundval)
+T = round(T, roundval)
+Theta = round(Theta,roundval)
+
+print(f"For Flight path angle {PA} rad, and velocity {V} ms,")
+print(f"Your Angle of Attack {Alpha} rad")
+print("The value of Del_E is", Del_E)
+print(f"Your Thrust force is {T} N")
 print("The valuze of Theta is",Theta)
 
 
