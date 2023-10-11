@@ -200,7 +200,11 @@ L1=0.5*p*V**2*S*C_L_1
 
 T=(-(L1/m)*np.sin(Alpha)+(D/m)*np.cos(Alpha)+(W/m)*np.sin(Theta))*m
 
-print(Alpha,Del_E,T,Theta)
+print("the value of Alpha is", Alpha)
+print("the value of Del_e is", Del_E)
+print("The value of T is", T)
+print("The valuze of Theta is",Theta)
+
 
 
 
