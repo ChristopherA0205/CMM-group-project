@@ -124,7 +124,7 @@ K=params[0]
 C_D_0=params[2]
 
 #inputs
-# values are m = mass, g = gravity, V = Velocity, p = ??, S = wing surface area, PA = path angle, roundval = values we want answers rounded to 
+# values are m = mass, g = gravity, V = Velocity, p = density of air, S = wing surface area, PA = path angle, roundval = values we want answers rounded to 
 m=1300
 g=9.81
 V=100
@@ -209,10 +209,10 @@ T = round(T, roundval)
 Theta = round(Theta,roundval)
 
 print(f"For Flight path angle {PA} rad, and velocity {V} ms,")
-print(f"Your Angle of Attack {Alpha} rad")
-print("The value of Del_E is", Del_E)
+print(f"Your Angle of Attack is {Alpha} rad")
+print(f"The elevator angle is {Del_E} rad")
 print(f"Your Thrust force is {T} N")
-print("The valuze of Theta is",Theta)
+print(f"Your Pitch angle is {Theta} rad")
 
 
 
