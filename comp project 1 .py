@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 Created on Thu Oct  5 22:19:21 2023
 
@@ -12,6 +12,7 @@ from scipy import stats
 from scipy.optimize import curve_fit
 
 
+
 alpha = np.array([-16,-12,-8,-4,-2,0,2,4,8,12])
 delta_el = np.array([-20,-10,0,10,20])
 
@@ -20,6 +21,7 @@ CL_wing = np.array([-1.421000000000000,-1.092000000000000,-0.695000000000000,-0.
 CM_wing = np.array([0.077500000000000, 0.066300000000000, 0.053000000000000, 0.033700000000000, 0.021700000000000, 0.007300000000000,-0.009000000000000,-0.026300000000000,-0.063200000000000,-0.123500000000000])
 CL_el = np.array([-0.051000000000000,-0.038000000000000, 0, 0.038000000000000, 0.052000000000000])
 CM_el = np.array([0.084200000000000, 0.060100000000000,-0.000100000000000,-0.060100000000000,-0.084300000000000])
+
 
 
 #calculate line of best fit
@@ -208,11 +210,12 @@ Del_E = round(Del_E, roundval)
 T = round(T, roundval)
 Theta = round(Theta,roundval)
 
+
 print(f"For Flight path angle {PA} rad, and velocity {V} ms,")
 print(f"Your Angle of Attack is {Alpha} rad")
 print(f"The elevator angle is {Del_E} rad")
 print(f"Your Thrust force is {T} N")
-print(f"Your Pitch angle is {Theta} rad")
+print(f"Your Pitch angle is {Theta} is")
 
 
 
