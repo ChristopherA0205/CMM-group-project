@@ -165,3 +165,21 @@ print(f"Your Angle of Attack is {Alpha} rad")
 print(f"The elevator angle is {Del_E} rad")
 print(f"Your Thrust force is {T} N")
 print(f"Your Pitch angle is {Theta} is")
+
+
+# Values that should be brought in from vehicle file and/or tidied up from equations
+cbar = 1.75
+C_M = C_M_0 + C_M_a*Alpha + C_M_del_E*Del_E
+pitch_mom = (1/2)*p*(V**2)*cbar*S*C_M
+inertia_yy = 7000   # need to make this neater/import from vehicle
+
+# Degrees of Freedom Equations 
+
+u_b = V*np.cos(Alpha)
+w_b = V*np.sin(Alpha)
+q = 0
+d_u_b = (L1/m)*np.sin(Alpha)-(D/m)*np.cos(Alpha)-q*w_b-(W/m)*np.sin(Theta)+(T/m)
+d_w_b = -(L1/m)*np.cos(Alpha)-(D/m)*np.sin(Alpha)+q*u_b+(W/m)*np.cos(Theta)
+d_q = pitch_mom/inertia_yy
+d_x_e = u_b*np.cos(Theta) + w_b*np.sin(Theta)
+d_z_e = -u_b*np.sin(Theta) + w_b*np.cos(Theta)
