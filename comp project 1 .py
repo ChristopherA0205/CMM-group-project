@@ -76,24 +76,24 @@ K, _, C_D_0 = plot_quadratic_fit(CL, CD_wing, '$C_L$', '$C_D$', 'Quadratic Curve
 
 #inputs
 # values are m = mass, g = gravity, V = Velocity, p = density of air, S = wing surface area, PA = path angle, roundval = values we want answers rounded to 
-m=1300
-g=9.81
-V=100
-p=1.0065
-S=20
-W=m*g
-PA=0.05
+m = 1300
+g = 9.81
+V = 100
+p = 1.0065
+S = 20
+W = m * g
+PA = 0.05
 roundval = 4
 
 #alpha=array degrees A=array in radians Alpha=specific alpha in radians
-CL=C_L_0+C_L_a*alpha+C_L_del_E*((-C_M_0+C_M_a*alpha)/C_M_del_E)
+CL= C_L_0 + C_L_a * alpha + C_L_del_E * ((-C_M_0 + C_M_a * alpha)/C_M_del_E)
 A = alpha
 
-L=0.5*V**2*p*S*CL
-D=0.5*V**2*p*S*CD_wing
-Y=-L*np.cos(A)-D*np.sin(A)+W*np.cos(A)
+L = 0.5 * V ** 2 * p * S * CL
+D = 0.5 * V ** 2 * p * S * CD_wing
+Y = -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
 def my_function(alpha):
-    return -L*np.cos(A)-D*np.sin(A)+W*np.cos(A)
+    return -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
 
 y = my_function(alpha)
 
@@ -125,9 +125,9 @@ def bisection(f, a, b, N):
     a_n = a 
     b_n = b
     for n in range(1, N+1):
-        m_n= (a_n + b_n)/2
-        f_m_n= f(m_n)
-        if f(a_n)*f_m_n < 0:
+        m_n = (a_n + b_n)/2
+        f_m_n = f(m_n)
+        if f(a_n) * f_m_n < 0:
             a_n = a_n
             b_n = m_n
         elif f(b_n)*f_m_n<0:
@@ -141,18 +141,18 @@ def bisection(f, a, b, N):
             return None
     return (a_n + b_n)/2
     
-f = lambda x: Gra*x+int
+f = lambda x: Gra * x + int
 Alpha = bisection(f,0,20,250)
 
 #calculate variables to find T
-Del_E=-(C_M_0+C_M_a*Alpha)/C_M_del_E
-Theta=Alpha+PA
-C_D=C_D_0+K*(C_L_0+C_L_a*Alpha+C_L_del_E*Del_E)**2
-D=0.5*p*V**2*S*C_D
-C_L_1=C_L_0+C_L_a*Alpha+C_L_del_E*Del_E
-L1=0.5*p*V**2*S*C_L_1
+Del_E = -(C_M_0 + C_M_a * Alpha)/C_M_del_E
+Theta = Alpha + PA
+C_D = C_D_0 + K * (C_L_0 + C_L_a * Alpha + C_L_del_E * Del_E) ** 2
+D = 0.5 * p * V ** 2 * S * C_D
+C_L_1 = C_L_0 + C_L_a * Alpha + C_L_del_E * Del_E
+L1 = 0.5 * p * V ** 2 * S * C_L_1
 
-T=(-(L1/m)*np.sin(Alpha)+(D/m)*np.cos(Alpha)+(W/m)*np.sin(Theta))*m
+T = (-(L1/m) * np.sin(Alpha) + (D/m) * np.cos(Alpha) + (W/m) * np.sin(Theta)) * m
 
 Alpha = round(Alpha, roundval)
 Del_E = round(Del_E, roundval)
@@ -169,8 +169,8 @@ print(f"Your Pitch angle is {Theta} is")
 
 # Values that should be brought in from vehicle file and/or tidied up from equations
 cbar = 1.75
-C_M = C_M_0 + C_M_a*Alpha + C_M_del_E*Del_E
-pitch_mom = (1/2)*p*(V**2)*cbar*S*C_M
+C_M = C_M_0 + C_M_a * Alpha + C_M_del_E * Del_E
+pitch_mom = (1/2) * p * (V**2) * cbar * S * C_M
 inertia_yy = 7000   # need to make this neater/import from vehicle
 
 # Degrees of Freedom Equations 
@@ -178,8 +178,8 @@ inertia_yy = 7000   # need to make this neater/import from vehicle
 u_b = V*np.cos(Alpha)
 w_b = V*np.sin(Alpha)
 q = 0
-d_u_b = (L1/m)*np.sin(Alpha)-(D/m)*np.cos(Alpha)-q*w_b-(W/m)*np.sin(Theta)+(T/m)
-d_w_b = -(L1/m)*np.cos(Alpha)-(D/m)*np.sin(Alpha)+q*u_b+(W/m)*np.cos(Theta)
+d_u_b = (L1/m) * np.sin(Alpha) - (D/m) * np.cos(Alpha) - q * w_b - (W/m) * np.sin(Theta) + (T/m)
+d_w_b = -(L1/m) * np.cos(Alpha) - (D/m) * np.sin(Alpha) + q * u_b + (W/m) * np.cos(Theta)
 d_q = pitch_mom/inertia_yy
-d_x_e = u_b*np.cos(Theta) + w_b*np.sin(Theta)
-d_z_e = -u_b*np.sin(Theta) + w_b*np.cos(Theta)
+d_x_e = u_b * np.cos(Theta) + w_b * np.sin(Theta)
+d_z_e = -u_b * np.sin(Theta) + w_b * np.cos(Theta)
