@@ -2,6 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy.optimize import newton
+
 
 # Define alpha and delta_el values
 alpha = np.deg2rad(np.array([-16,-12,-8,-4,-2,0,2,4,8,12]))
@@ -16,8 +18,11 @@ CM_wing = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.02
 CL_el = np.array([-0.051, -0.038, 0, 0.038, 0.052])
 CM_el = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843])
 
+
 def linear_function(x, m, c):
     return m*x + c
+
+
 
 # Function to plot a line of best fit for the given data and return slope and intercept
 def plot_best_fit(x, y, x_label, y_label, title):
@@ -127,32 +132,12 @@ plt.show()
 Gra=slope
 int=intercept
 
-#bisection method to find root
-def bisection(f, a, b, N):
-    if f(a)*f(b) >=0:
-        print("a and b do not bound a root")
-        return None
-    a_n = a 
-    b_n = b
-    for n in range(1, N+1):
-        m_n = (a_n + b_n)/2
-        f_m_n = f(m_n)
-        if f(a_n) * f_m_n < 0:
-            a_n = a_n
-            b_n = m_n
-        elif f(b_n) * f_m_n < 0:
-            a_n = m_n
-            b_n = b_n
-        elif f_m_n == 0:
-            print("Found exact solution.")
-            return m_n
-        else:
-            print("Bisection method fails.")
-            return None
-    return (a_n + b_n)/2
-    
-f = lambda x: Gra * x + int
-Alpha = bisection(f,0,20,250)
+#Newton Method and Equillibrium Equation
+def f(A):
+    return -0.5 * p * V**2 * S * (C_L_0 + C_L_a * A - C_L_del_E * (C_M_0 + C_M_a * A)/C_M_del_E)*np.cos(A) - 0.5 * p * V**2 * S * (C_D_0 + K * (C_L_0 + C_L_a * A - C_L_del_E * (C_M_0 + C_M_a * A)/C_M_del_E)**2) * np.sin(A) + m * g * np.cos(A + PA)
+
+initial_guess = 0.01   
+Alpha = newton(f, initial_guess)
 
 #calculate variables to find T
 Del_E = -(C_M_0 + C_M_a * Alpha)/C_M_del_E
