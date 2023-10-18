@@ -1,8 +1,7 @@
-# Importing Libraries and Modules
+#Importing Libraries and Modules
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy import stats
 
 # Define alpha and delta_el values
 alpha = np.deg2rad(np.array([-16,-12,-8,-4,-2,0,2,4,8,12]))
@@ -17,10 +16,15 @@ CM_wing = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.02
 CL_el = np.array([-0.051, -0.038, 0, 0.038, 0.052])
 CM_el = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843])
 
+def linear_function(x, m, c):
+    return m*x + c
+
 # Function to plot a line of best fit for the given data and return slope and intercept
 def plot_best_fit(x, y, x_label, y_label, title):
-    # Calculate the line of best fit
-    slope, intercept, _, _, _ = stats.linregress(x, y)
+    # Fit the data with the linear function
+    params, _ = curve_fit(linear_function, x, y)
+    slope = params[0]
+    intercept = params[1]
     line_equation = f'y = {slope:.2f}x + {intercept:.2f}'
     
     # Plot the data and the line of best fit
@@ -62,9 +66,16 @@ def plot_quadratic_fit(x, y, x_label, y_label, title):
 
 # Use the functions to calculate and plot the aerodynamic coefficients for different cases
 C_L_a, C_L_0 = plot_best_fit(alpha, CL_wing, '\u03B1', 'C$_{L}$$^{wing}$', "C$_{L}$$_{0}$ + C$_{L}$$_{\u03B1}$\u03B1")
+print(f"Lift coefficient for Wing (linear approximation): C_L_α = {C_L_a:.4f}, C_L_0 = {C_L_0:.4f}")
+
 C_M_a, C_M_0 = plot_best_fit(alpha, CM_wing, '\u03B1', 'C$_{M}$$^{wing}$', "C$_{M}$$_{0}$ + C$_{M}$$_{\u03B1}$\u03B1")
+print(f"Pitch moment coefficient for Wing (linear approximation): C_M_α = {C_M_a:.4f}, C_M_0 = {C_M_0:.4f}")
+
 C_L_del_E, _ = plot_best_fit(delta_el, CL_el, '\u03B4', 'C$_{L}$$^{el}$', "C$_{L}$$_{\u03B4}$$_{E}$")
+print(f"Lift coefficient due to elevator deflection: C_L_δE = {C_L_del_E:.4f}")
+
 C_M_del_E, _ = plot_best_fit(delta_el, CM_el, '\u03B4', 'C$_{M}$$^{el}$', "C$_{M}$$_{\u03B4}$$_{E}$")
+print(f"Pitch moment coefficient due to elevator deflection: C_M_δE = {C_M_del_E:.4f}")
 
 # Calculate the lift coefficient CL using the obtained values
 CL = C_L_0 + C_L_a*alpha + C_L_del_E * ((-C_M_0 + C_M_a*alpha) / C_M_del_E)
@@ -94,15 +105,18 @@ D = 0.5 * V ** 2 * p * S * CD_wing
 Y = -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
 
 # plt to find root
-#calculate line of best fit
-slope, intercept, r_value, p_value, std_err = stats.linregress(A, Y)
+# Fit data points
+params, _ = curve_fit(linear_function, A, Y)
+slope = params[0]
+intercept = params[1]
 line_equation = f'y = {slope:.2f}x + {intercept:.2f}'
-#plt data points
+
+# Plot data points
 plt.figure(1, figsize=(6, 4))
 plt.scatter(A, Y, label='Data Points')
-#plt line of best fit
+# Plot line of best fit
 plt.plot(A, slope * A + intercept, label=f'Line of Best Fit: {line_equation}', color='red')
-#edit plt
+# Edit plt
 plt.xlabel('Alpha in radians')
 plt.ylabel('Y')
 plt.legend()
