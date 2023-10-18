@@ -92,10 +92,6 @@ A = alpha
 L = 0.5 * V ** 2 * p * S * CL
 D = 0.5 * V ** 2 * p * S * CD_wing
 Y = -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
-def my_function(alpha):
-    return -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
-
-y = my_function(alpha)
 
 # plt to find root
 #calculate line of best fit
