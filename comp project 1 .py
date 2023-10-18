@@ -86,7 +86,7 @@ PA = 0.05
 roundval = 4
 
 #alpha=array degrees A=array in radians Alpha=specific alpha in radians
-CL= C_L_0 + C_L_a * alpha + C_L_del_E * ((-C_M_0 + C_M_a * alpha)/C_M_del_E)
+CL = C_L_0 + C_L_a * alpha + C_L_del_E * ((-C_M_0 + C_M_a * alpha)/C_M_del_E)
 A = alpha
 
 L = 0.5 * V ** 2 * p * S * CL
@@ -130,7 +130,7 @@ def bisection(f, a, b, N):
         if f(a_n) * f_m_n < 0:
             a_n = a_n
             b_n = m_n
-        elif f(b_n)*f_m_n<0:
+        elif f(b_n) * f_m_n < 0:
             a_n = m_n
             b_n = b_n
         elif f_m_n == 0:
@@ -175,8 +175,8 @@ inertia_yy = 7000   # need to make this neater/import from vehicle
 
 # Degrees of Freedom Equations 
 
-u_b = V*np.cos(Alpha)
-w_b = V*np.sin(Alpha)
+u_b = V * np.cos(Alpha)
+w_b = V * np.sin(Alpha)
 q = 0
 d_u_b = (L1/m) * np.sin(Alpha) - (D/m) * np.cos(Alpha) - q * w_b - (W/m) * np.sin(Theta) + (T/m)
 d_w_b = -(L1/m) * np.cos(Alpha) - (D/m) * np.sin(Alpha) + q * u_b + (W/m) * np.cos(Theta)
