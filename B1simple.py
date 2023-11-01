@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Oct 24 15:14:51 2023
 
@@ -203,9 +201,12 @@ Gmax = 5
 # Initializing empty lists for T (thrust) and δE (elevator angle)
 T_values = []
 Del_E_values = []
+Alpha_values = []
+V_values = []
+G_values = []
 
 for V in np.linspace(Vmin, Vmax, 500):
-    for gamma in np.linspace(Gmin, Gmax, 5):
+    for gamma in np.linspace(Gmin, Gmax, 500):
         
         Alpha_next = newton(f, initial_guess)  
        
@@ -229,6 +230,9 @@ for V in np.linspace(Vmin, Vmax, 500):
         if alpha_lb <= Alpha_next <= alpha_ub and del_E_lb <= Del_E <= del_E_ub and Thrust >0:
                T_values.append(Thrust)
                Del_E_values.append(Del_E)
+               Alpha_values.append(Alpha_next)
+               V_values.append(V)
+               G_values.append(gamma)
                
 print(Del_E_values)
 print(T_values)
@@ -249,21 +253,22 @@ plt.legend()
 
 plt.show()
 
+def b1plot(x, y, z, Name):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(x, y, z, c='b', marker='o', label = 'Output 1')
+    
+    # Set labels for the axes
+    ax.set_xlabel('Velocity input')
+    ax.set_ylabel('Path angle input')
+    ax.set_zlabel(Name)
+    ax.set_title(Name)
+    ax.legend()
+    plt.show()
+    
 
-# Values that should be brought in from vehicle file and/or tidied up from equations
+b1plot(V_values, G_values, Alpha_values, 'Alpha')
 
-cbar = 1.75
-C_M = C_M_0 + C_M_a * Alpha + C_M_del_E * Del_E
-pitch_mom = (1/2) * p * (V**2) * cbar * S * C_M
-inertia_yy = 7000
 
-# Degrees of Freedom Equations 
 
-u_b = V * np.cos(Alpha)
-w_b = V * np.sin(Alpha)
-q = 0
-d_u_b = (L1/m) * np.sin(Alpha) - (D/m) * np.cos(Alpha) - q * w_b - (W/m) * np.sin(Theta) + (Thrust/m)
-d_w_b = -(L1/m) * np.cos(Alpha) - (D/m) * np.sin(Alpha) + q * u_b + (W/m) * np.cos(Theta)
-d_q = pitch_mom/inertia_yy
-d_x_e = u_b * np.cos(Theta) + w_b * np.sin(Theta)
-d_z_e = -u_b * np.sin(Theta) + w_b * np.cos(Theta)
+
