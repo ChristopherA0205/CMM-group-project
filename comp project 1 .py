@@ -1,180 +1,205 @@
-#Importing Libraries and Modules
+# Importing necessary libraries for numerical calculations and plotting
+
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from scipy.optimize import newton
+from scipy import integrate, optimize
+ 
+# Defining physical constants related to gravity, air properties, and aircraft characteristics
+ 
+gravity = 9.81  # Earth's gravitational acceleration (m/s^2)
+air_density = 1.0065  # Density of air at sea level at 15 degrees Celsius (kg/m^3)
+wing_surface = 20.0  #Total surface area of the airplane's wings (m^2)
+cbar = 1.75  # Average aerodynamic chord of the wing (m)
+mass = 1300.0  # Total mass of the aircraft (kg)
+inertia_yy = 7000  # Moment of inertia around the y-axis (pitching) (kg*m^2)
+ 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Creating arrays for angle of attack, elevator angle, and aerodynamic coefficients from empirical data
+
+alpha_list = np.deg2rad([-16, -12, -8, -4, -2, 0, 2, 4, 8, 12]) # Angle of attack (converted to radians)
+delta_el_list = np.deg2rad([-20, -10, 0, 10, 20]) # Elevator deflection angles (converted to radians)
+CD_list = np.array([0.115, 0.079, 0.047, 0.031, 0.027, 0.027, 0.029, 0.034, 0.054, 0.089]) # Drag coefficient data for different angles of attack
+CL_list = np.array([-1.421, -1.092, -0.695, -0.312, -0.132, 0.041, 0.218, 0.402, 0.786, 1.186]) # Lift coefficient data for different angles of attack
+CM_list = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.0263, -0.0632, -0.1235]) # Pitching moment coefficient data for different angles of attack
+CM_el_list = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843]) # Pitching moment coefficient data for different elevator deflections
+CL_el_list = np.array([-0.051, -0.038, 0.0, 0.038, 0.052]) # Lift coefficient data for different elevator deflections
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Curve fitting to empirical data to find relationships between aerodynamic coefficients and angles
+ 
+
+# Curve fitting
+[CL0, CLa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_list, CL_list, [0.04, 0.1]) # Fitting a curve to find lift coefficient at zero angle of attack (CL0) and its dependence on the angle of attack (CLa)
+[CLde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_list, CL_el_list, [0.003]) # Fitting a curve to find lift coefficient dependence on elevator deflection (CLde)
+[CM0, CMa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_list, CM_list, [0.0, -0.06]) # Fitting a curve for pitching moment coefficient at zero angle of attack (CM0) and its variation with angle of attack (CMa)
+[CMde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_list, CM_el_list, [-0.005]) # Fitting a curve to find pitching moment coefficient dependence on elevator deflection (CMde)
+[CD0, K], _ = optimize.curve_fit(lambda x, a, b: a + b * x**2, CL_list, CD_list, [0.02, 0.04])  # Fitting a curve to establish a drag coefficient model (CD0) and its dependency on the lift coefficient squared (induced drag factor K)
+ 
+
+# Printing the coefficients for verification (useful in a standalone script for debugging)
+
+print(f"CL0 = {CL0}")
+print(f"CLa = {CLa}")
+print(f"CLde = {CLde}")
+print(f"CM0 = {CM0}")
+print(f"CMa = {CMa}")
+print(f"CMde = {CMde}")
+print(f"CD0 = {CD0}")
+print(f"K = {K}") 
 
 
-# Define alpha and delta_el values
-alpha = np.deg2rad(np.array([-16,-12,-8,-4,-2,0,2,4,8,12]))
-delta_el = np.deg2rad(np.array([-20,-10,0,10,20]))
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Define aerodynamic coefficients for the wing for different alpha values
-CD_wing = np.array([0.115, 0.079, 0.047, 0.031, 0.027, 0.027, 0.029, 0.034, 0.054, 0.089])
-CL_wing = np.array([-1.421, -1.092, -0.695, -0.312, -0.132, 0.041, 0.218, 0.402, 0.786, 1.186])
-CM_wing = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.0263, -0.0632, -0.1235])
+# Defining aerodynamic coefficient functions as linear combinations of angles and constants obtained from curve fitting
 
-# Define aerodynamic coefficients for the elevator for different delta_el values
-CL_el = np.array([-0.051, -0.038, 0, 0.038, 0.052])
-CM_el = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843])
+ 
+# Coefficients
+def CL(alpha, delta): return CL0 + CLa * alpha + CLde * delta
+def CM(alpha, delta): return CM0 + CMa * alpha + CMde * delta
+def CD(alpha, delta): return CD0 + K * CL(alpha, delta)**2
+
+# Defining forces and moment functions that depend on velocity, angles of attack, and elevator deflection
+
+def Lift(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * CL(alpha, delta)
+def Drag(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * CD(alpha, delta)
+def Moment(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * cbar * CM(alpha, delta)
+def Engine_Thrust(alpha, delta, theta, V): return Drag(alpha, delta, V) * np.cos(alpha) - Lift(alpha, delta, V) * np.sin(alpha) + mass * gravity * np.sin(theta)
+ 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Defining the differential equations governing the aircraft's motion
 
 
-def linear_function(x, m, c):
-    return m*x + c
+def Equations ( t, y, delta, thrust):
+    q, theta, ub, wb, xe, ze = y
+ 
+    alpha = np.arctan2(wb, ub)
+    velocity = np.sqrt(ub**2 + wb**2)
+ 
+    dq_dt = (Moment(alpha, delta, velocity)/inertia_yy)
+    dtheta_dt = q
+ 
+    dub_dt = (Lift(alpha, delta, velocity) * np.sin(alpha) - Drag(alpha, delta, velocity) * np.cos(alpha) - mass * q * wb - mass * gravity * np.sin(theta) + thrust) / mass
+    dwb_dt = (-Lift(alpha, delta, velocity) * np.cos(alpha) - Drag(alpha, delta, velocity) * np.sin(alpha) + mass * q * ub + mass * gravity * np.cos(theta)) / mass
+ 
+    dxe_dt = ub * np.cos(theta) + wb * np.sin(theta)
+    dze_dt = - ub * np.sin(theta) + wb * np.cos(theta)
+ 
+    return dq_dt, dtheta_dt, dub_dt, dwb_dt, dxe_dt, dze_dt
 
+    # These equations are derived from the aircraft's equations of motion
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Function to plot a line of best fit for the given data and return slope and intercept
-def plot_best_fit(x, y, x_label, y_label, title):
-    # Fit the data with the linear function
-    params, _ = curve_fit(linear_function, x, y)
-    slope = params[0]
-    intercept = params[1]
-    line_equation = f'y = {slope:.2f}x + {intercept:.2f}'
+# Function to find the aircraft's trim conditions for a given velocity and flight path angle
+
+def find_trim_conditions(trimVelocity, trimGamma):
+    def alpha_trim_func(alpha, trimVelocity, trimGamma):
+        delta = -(CM0 + CMa * alpha) / CMde
+        return (-Lift(alpha, delta, trimVelocity) * np.cos(alpha) - Drag(alpha, delta, trimVelocity) * np.sin(alpha) + mass * gravity * np.cos(alpha + trimGamma))
+
+    # Solve for alpha
+    initial_guess = 0.01  # Provide an initial guess
+    alpha = optimize.newton(alpha_trim_func, initial_guess, args=(trimVelocity, trimGamma))
+
+    # Solve for delta
+    delta = -(CM0 + CMa * alpha) / CMde
+
+    # Calculating other variables to output
+    theta = alpha + trimGamma
+    ub = trimVelocity * np.cos(alpha)
+    wb = trimVelocity * np.sin(alpha)
+
+    # Calculating thrust
+    thrust = Engine_Thrust(alpha, delta, theta, trimVelocity)
+
+    return alpha, delta, theta, ub, wb, thrust
+
+    # Trim conditions are the steady-state solutions where forces and moments are balanced
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Function to display the results of the simulation graphically
+
+def display_simulation_results(Data, initialAltitude=0):
+    t = Data.t
+    attributes = [
+        ('q', Data.y[0], "q Angular Velocity vs Time", "q [rad/s]"),
+        ('theta', Data.y[1], "${\Theta}$ Pitch Angle vs Time", "${\Theta}$ [$^{0}$]"),
+        ('ub', Data.y[2], "$u_{B}$ Body Axis Velocity vs Time", "$u_{B}$ [m/s]"),
+        ('wb', Data.y[3], "$w_{B}$ Body Axis Velocity vs Time", "$w_{B}$ [m/s]"),
+        ('xe', Data.y[4], "$x_{E}$ Horizontal Position vs Time", "$x_{e}$ [m]"),
+        ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "Altitude h [m]")
+    ]
+
+    fig, ax = plt.subplots(3, 2, figsize=(12, 10))
+
+    # Loop through each attribute and create its subplot
     
-    # Plot the data and the line of best fit
-    plt.figure(figsize=(6, 4))
-    plt.scatter(x, y, label='Data Points')
-    plt.plot(x, slope * x + intercept, label=f'Line of Best Fit: {line_equation}', color='red')
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.legend()
-    plt.grid(True)
-    plt.title(title)
+    for i, (attr_name, attr_values, title, ylabel) in enumerate(attributes):
+        row, col = divmod(i, 2)
+        ax[row, col].plot(t, attr_values)
+        ax[row, col].set_title(title, fontsize=12)
+        ax[row, col].set_ylabel(ylabel, rotation='horizontal')
+        ax[row, col].set_xlabel("t [s]")
+
+    plt.tight_layout()
     plt.show()
-    
-    return slope, intercept
 
-# Function to plot a quadratic fit for the given data and return the parameters of the quadratic function
-def plot_quadratic_fit(x, y, x_label, y_label, title):
-    # Define the quadratic function
-    def quadratic_function(x, a, b, c):
-        return a * x**2 + b * x + c
+    # Plots are created for each state variable against time using matplotlib
 
-    # Fit the data with the quadratic function
-    params, _ = curve_fit(quadratic_function, x, y)
-    x_fit = np.linspace(min(x), max(x), 100)
-    y_fit = quadratic_function(x_fit, *params)
-    
-    # Plot the data and the quadratic fit
-    plt.figure(figsize=(8, 6))
-    plt.scatter(x, y, label='Data', color='blue')
-    plt.plot(x_fit, y_fit, label=f'Quadratic Fit: {params[0]:.2f}x^2 + {params[1]:.2f}x + {params[2]:.2f}', color='red')
-    plt.title(title)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
-    return params
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Use the functions to calculate and plot the aerodynamic coefficients for different cases
-C_L_a, C_L_0 = plot_best_fit(alpha, CL_wing, '\u03B1', 'C$_{L}$$^{wing}$', "C$_{L}$$_{0}$ + C$_{L}$$_{\u03B1}$\u03B1")
-print(f"Lift coefficient for Wing (linear approximation): C_L_α = {C_L_a:.4f}, C_L_0 = {C_L_0:.4f}")
+# Function to simulate the aircraft's response to control input changes during flight
 
-C_M_a, C_M_0 = plot_best_fit(alpha, CM_wing, '\u03B1', 'C$_{M}$$^{wing}$', "C$_{M}$$_{0}$ + C$_{M}$$_{\u03B1}$\u03B1")
-print(f"Pitch moment coefficient for Wing (linear approximation): C_M_α = {C_M_a:.4f}, C_M_0 = {C_M_0:.4f}")
+def sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thrustChange):
+    alpha, delta, theta, ub, wb, thrust = trimConditions
 
-C_L_del_E, _ = plot_best_fit(delta_el, CL_el, '\u03B4', 'C$_{L}$$^{el}$', "C$_{L}$$_{\u03B4}$$_{E}$")
-print(f"Lift coefficient due to elevator deflection: C_L_δE = {C_L_del_E:.4f}")
+    if pitchTime < t < pitchTime + climbTime:
+        delta *= (1 + elevatorChange/100)
+        thrust *= (1 + thrustChange/100)
 
-C_M_del_E, _ = plot_best_fit(delta_el, CM_el, '\u03B4', 'C$_{M}$$^{el}$', "C$_{M}$$_{\u03B4}$$_{E}$")
-print(f"Pitch moment coefficient due to elevator deflection: C_M_δE = {C_M_del_E:.4f}")
+    return Equations(t, y, delta, thrust)
 
-# Calculate the lift coefficient CL using the obtained values
-CL = C_L_0 + C_L_a*alpha + C_L_del_E * ((-C_M_0 + C_M_a*alpha) / C_M_del_E)
-# Fit the lift coefficient CL and the drag coefficient CD with a quadratic function and plot it
-K, _, C_D_0 = plot_quadratic_fit(CL, CD_wing, '$C_L$', '$C_D$', 'Quadratic Curve Line of Best Fit')
+# This function modifies control inputs at specified times during the flight
 
-# ... [Calculations & Bisection Method] ...
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Function to run the simulation using the initial conditions and user-defined parameters
 
-#inputs
-# values are m = mass, g = gravity, V = Velocity, p = density of air, S = wing surface area, PA = path angle, roundval = values we want answers rounded to 
-m = 1300
-g = 9.81
-V = 100
-p = 1.0065
-S = 20
-W = m * g
-PA = 0.05
-roundval = 4
+def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude):
+    trimConditions = find_trim_conditions(trimVelocity, trimGamma)
 
-#alpha=array degrees A=array in radians Alpha=specific alpha in radians
-CL = C_L_0 + C_L_a * alpha + C_L_del_E * ((-C_M_0 + C_M_a * alpha)/C_M_del_E)
-A = alpha
+    # IVP library
+    y = integrate.solve_ivp(
+        lambda t, y: sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thrustChange),
+        [0, t_end], 
+        [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
+        t_eval=np.linspace(0, t_end, t_end * 50)
+    )
+ 
+    # Send data to "display_simulation_results" function to be plotted
+    display_simulation_results(y, initialAltitude)
 
-L = 0.5 * V ** 2 * p * S * CL
-D = 0.5 * V ** 2 * p * S * CD_wing
-Y = -L * np.cos(A) - D * np.sin(A) + W * np.cos(A)
+    # This function sets up and solves the initial value problem (IVP) using scipy's solve_ivp
 
-# plt to find root
-# Fit data points
-params, _ = curve_fit(linear_function, A, Y)
-slope = params[0]
-intercept = params[1]
-line_equation = f'y = {slope:.2f}x + {intercept:.2f}'
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Plot data points
-plt.figure(1, figsize=(6, 4))
-plt.scatter(A, Y, label='Data Points')
-# Plot line of best fit
-plt.plot(A, slope * A + intercept, label=f'Line of Best Fit: {line_equation}', color='red')
-# Edit plt
-plt.xlabel('Alpha in radians')
-plt.ylabel('Y')
-plt.legend()
-plt.grid(True)
-plt.title("find root")
-plt.show()
-#Assign values
-Gra=slope
-int=intercept
+# User-provided parameters for initial conditions and control input changes
 
-#Newton Method and Equillibrium Equation
-def f(A):
-    return -0.5 * p * V**2 * S * (C_L_0 + C_L_a * A - C_L_del_E * (C_M_0 + C_M_a * A)/C_M_del_E)*np.cos(A) - 0.5 * p * V**2 * S * (C_D_0 + K * (C_L_0 + C_L_a * A - C_L_del_E * (C_M_0 + C_M_a * A)/C_M_del_E)**2) * np.sin(A) + m * g * np.cos(A + PA)
+velocity_0 = 100 # Initial velocity (m/s)
+gamma_0 = 0 # Initial flight path angle (radians)
 
-initial_guess = 0.01   
-Alpha = newton(f, initial_guess)
+pitchTime = 100 # Time in seconds after simulation start at which the values are changed
+climbTime = 300 # Duration of climb in seconds
 
-#calculate variables to find T
-Del_E = -(C_M_0 + C_M_a * Alpha)/C_M_del_E
-Theta = Alpha + PA
-C_D = C_D_0 + K * (C_L_0 + C_L_a * Alpha + C_L_del_E * Del_E) ** 2
-D = 0.5 * p * V ** 2 * S * C_D
-C_L_1 = C_L_0 + C_L_a * Alpha + C_L_del_E * Del_E
-L1 = 0.5 * p * V ** 2 * S * C_L_1
+elevatorChange = 10 # in percent
+thrustChange = 0 # in percent
 
-T = (-(L1/m) * np.sin(Alpha) + (D/m) * np.cos(Alpha) + (W/m) * np.sin(Theta)) * m
+initialAltitude = 2000 # Altitude at t=0
 
-Alpha = round(Alpha, roundval)
-Del_E = round(Del_E, roundval)
-T = round(T, roundval)
-Theta = round(Theta,roundval)
+# Starting the simulation with the defined parameters
 
-
-print(f"For Flight path angle {PA} rad, and velocity {V} ms,")
-print(f"Your Angle of Attack is {Alpha} rad")
-print(f"The elevator angle is {Del_E} rad")
-print(f"Your Thrust force is {T} N")
-print(f"Your Pitch angle is {Theta} is")
-
-
-# Values that should be brought in from vehicle file and/or tidied up from equations
-cbar = 1.75
-C_M = C_M_0 + C_M_a * Alpha + C_M_del_E * Del_E
-pitch_mom = (1/2) * p * (V**2) * cbar * S * C_M
-inertia_yy = 7000   # need to make this neater/import from vehicle
-
-# Degrees of Freedom Equations 
-
-u_b = V * np.cos(Alpha)
-w_b = V * np.sin(Alpha)
-q = 0
-d_u_b = (L1/m) * np.sin(Alpha) - (D/m) * np.cos(Alpha) - q * w_b - (W/m) * np.sin(Theta) + (T/m)
-d_w_b = -(L1/m) * np.cos(Alpha) - (D/m) * np.sin(Alpha) + q * u_b + (W/m) * np.cos(Theta)
-d_q = pitch_mom/inertia_yy
-d_x_e = u_b * np.cos(Theta) + w_b * np.sin(Theta)
-d_z_e = -u_b * np.sin(Theta) + w_b * np.cos(Theta)
+run_simulation(velocity_0, gamma_0, 300, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude)
