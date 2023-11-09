@@ -305,6 +305,9 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+
+
+
 def sim_control2(t, y, pitchTime, climbTime, trimParams, trimParams2):
     if pitchTime < t < pitchTime + climbTime:
         delta = -0.0572
@@ -323,7 +326,7 @@ def display_sim2(Data, initialAltitude):
     xe = Data.y[4]
     ze = Data.y[5]
 
-    altitude = -ze + initialAltitude
+    altitude = -ze 
     plt.show()
  
     fig, ax = plt.subplots(3, 2, figsize=(12, 10))
@@ -370,7 +373,8 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
     
     climbTime = climbTimeGuess
-    finalAltitude = initialAltitude
+    finalAltitude = 0  # Initialization before the loop
+
     
     while finalAltitude < maxAltitude:
         y = integrate.solve_ivp(sim_control2, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, int(t_end*50)), args=(pitchTime, climbTime, trimParams, trimParams2))
@@ -385,6 +389,7 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
     return climbTime
 
 
-climb_duration = find_climb_time(trimVelocity=109, trimGamma=0, t_end=500, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=109, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=500, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=109, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+
 
 
