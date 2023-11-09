@@ -305,11 +305,8 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
-
-
 def sim_control2(t, y, pitchTime, climbTime, trimParams, trimParams2):
-    if pitchTime < t < pitchTime + climbTime:
+    if pitchTime <= t < pitchTime + climbTime:  
         delta = -0.0572
         thrust = 2755.17
     else:
@@ -317,56 +314,31 @@ def sim_control2(t, y, pitchTime, climbTime, trimParams, trimParams2):
         thrust = 2755.17
     return Equations(t, y, delta, thrust)
 
+
+
 def display_sim2(Data, initialAltitude):
     t = Data.t
-    q = Data.y[0]
-    theta = Data.y[1]
-    ub = Data.y[2]
-    wb = Data.y[3]
-    xe = Data.y[4]
-    ze = Data.y[5]
-
-    altitude = -ze 
-    plt.show()
- 
+    labels = [
+        ('$u_B$ Body Axis Velocity vs Time', '$u_B$ [m/s]'),
+        ('$w_B$ Body Axis Velocity vs Time', '$w_B$ [m/s]'),
+        ('$\\theta$ Pitch Angle vs Time', '$\\theta$ [rad]'),
+        ('q Angular Velocity vs Time', 'q [rad/s]'),
+        ('$x_E$ Horizontal Position vs Time', '$x_e$ [m]'),
+        ('Altitude vs Time', 'Altitude h [m]')
+    ]
+    variables = [Data.y[2], Data.y[3], Data.y[1], Data.y[0], Data.y[4], -Data.y[5]]
+    
     fig, ax = plt.subplots(3, 2, figsize=(12, 10))
- 
-    ax[0, 0].plot(t, ub)
-    ax[0, 0].set_title("$u_{B}$ Body Axis Velocity vs Time", fontsize=12)
-    ax[0, 0].set_ylabel("$u_{B}$ [m/s]", rotation='horizontal')
-    ax[0, 0].set_xlabel("t [s]")
- 
-    ax[0, 1].plot(t, wb)
-    ax[0, 1].set_title("$w_{B}$ Body Axis Velocity vs Time", fontsize=12)
-    ax[0, 1].set_ylabel("$w_{B}$ [m/s]", rotation='horizontal')
-    ax[0, 1].set_xlabel("t [s]")
- 
-    ax[1, 0].plot(t, theta)
-    ax[1, 0].set_title("${\Theta}$ Pitch Angle vs Time", fontsize=12)
-    ax[1, 0].set_ylabel("${\Theta}$ [$^{0}$]", rotation='horizontal')
-    ax[1, 0].set_xlabel("t [s]")
- 
-    ax[1, 1].plot(t,q)
-    ax[1, 1].set_title("q Angular Velocity vs Time", fontsize=12)
-    ax[1, 1].set_ylabel("q [rad/s]", rotation='horizontal')
-    ax[1, 1].set_xlabel("t [s]")
- 
-    ax[2, 0].plot(t, xe)
-    ax[2, 0].set_title("$x_{E}$ Horizontal Position vs Time", fontsize=12)
-    ax[2, 0].set_ylabel("$x_{e}$ [m]")
-    ax[2, 0].set_xlabel("t [s]")
- 
-    ax[2, 1].plot(t, altitude)
-    ax[2, 1].set_title("h Altitude  vs Time", fontsize=12)
-    ax[2, 1].set_ylabel("Altitude h [m]")
-    ax[2, 1].set_xlabel("t [s]")
-
-    plt.tight_layout()
-
-
-
+    
+    for i, axi in enumerate(ax.flat):
+        axi.plot(t, variables[i])
+        axi.set_title(labels[i][0], fontsize=12)
+        axi.set_ylabel(labels[i][1], rotation='horizontal')
+        axi.set_xlabel("t [s]")
+    
     plt.tight_layout()
     plt.show()
+
 
 def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
@@ -389,7 +361,10 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
     return climbTime
 
 
-climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=500, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=109, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=500, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#                                             Part C
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
