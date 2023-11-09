@@ -67,8 +67,9 @@ Constants.py: This file was created in order to store all the constants used in 
 as 'c' for ease of use. Additionally large data sets, such as the expieramental data used to calculate the coefficients
 are stored here. This file does not contain data specific for trim conditions.
 
-Lambda.py: This file is used to store small functions such as CD, CM and CL which will be used repeatedly in the code
-to calculate aerodynamic parameters. This module is imported as 'L'.
+functions.py: This file is used to store small functions such as CD, CM and CL which will be used repeatedly in the code
+to calculate aerodynamic parameters. This module is imported as 'L'. Large simulation functions are included in the main
+code. 
 
 TrimConditions.py: Although containing constants, this module is specific for trim condition values in order to import
 them in the later calculations of late part A and part B. 
