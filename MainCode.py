@@ -239,7 +239,7 @@ def alpha_trim_func(alpha, trimVelocity, trimGamma):
 
 # Define the range of velocities and flight path angles
 V_min = 50
-V_max = 210 #To get 200 as upper bound , since step size is 10
+V_max = 210 #In order to get an upper bound of 200, since step size is 10
 gamma_min = 0
 gamma_max = 1
 
@@ -306,12 +306,16 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 
 
 def sim_control2(t, y, pitchTime, climbTime, trimParams, trimParams2):
-    if pitchTime <= t < pitchTime + climbTime:  
-        delta = -0.0572
-        thrust = 2755.17
+    # Check if current time is within the climb phase
+    if pitchTime <= t < pitchTime + climbTime:
+        # During the climb, adjust the elevator and thrust to simulate a climb
+        # The actual values should be determined based on the aircraft's performance characteristics
+        delta = trimParams2[1]  # Elevator deflection for climb
+        thrust = trimParams2[5]  # Thrust setting for climb
     else:
-        delta = -0.0520
-        thrust = 2755.17
+        # Before and after the climb, use the trim conditions
+        delta = trimParams[1]  # Elevator deflection for trim
+        thrust = trimParams[5]  # Thrust setting for trim
     return Equations(t, y, delta, thrust)
 
 
@@ -341,20 +345,28 @@ def display_sim2(Data, initialAltitude):
 
 
 def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
+    # Calculate trim conditions for level flight and climb
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
     
     climbTime = climbTimeGuess
-    finalAltitude = 0  # Initialization before the loop
+    finalAltitude = initialAltitude  # Start at initial altitude
 
-    
-    while finalAltitude < maxAltitude:
-        y = integrate.solve_ivp(sim_control2, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, int(t_end*50)), args=(pitchTime, climbTime, trimParams, trimParams2))
-
+    # Loop until the aircraft reaches the target altitude or the end of simulation time
+    while finalAltitude < maxAltitude and climbTime < t_end - pitchTime:
+        # Simulate with current climbTime guess
+        y = integrate.solve_ivp(sim_control2, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, 1000), args=(pitchTime, climbTime, trimParams, trimParams2))
+        
+        # Check the final altitude reached
         finalAltitude = -y.y[5][-1]
+        
+        # If the desired altitude is not reached, increase the climbTime
         if finalAltitude < maxAltitude:
             climbTime += climbStep
-    
+        else:
+            # If the desired altitude is reached, exit the loop
+            break
+
     display_sim2(y, initialAltitude)
     
     print(f"Climb Duration: {climbTime}s")
