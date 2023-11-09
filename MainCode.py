@@ -239,7 +239,7 @@ def alpha_trim_func(alpha, trimVelocity, trimGamma):
 
 # Define the range of velocities and flight path angles
 V_min = 50
-V_max = 200
+V_max = 210 #To get 200 as upper bound , since step size is 10
 gamma_min = 0
 gamma_max = 1
 
