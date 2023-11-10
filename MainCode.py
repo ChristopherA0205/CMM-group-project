@@ -88,7 +88,7 @@ def Engine_Thrust(alpha, delta, theta, V): return Drag(alpha, delta, V) * np.cos
 # Defining the differential equations governing the aircraft's motion
 
 
-def Equations ( t, y, delta, thrust):
+def AircraftDynamics ( t, y, delta, thrust):
     q, theta, ub, wb, xe, ze = y
  
     alpha = np.arctan2(wb, ub)
@@ -166,14 +166,21 @@ def display_simulation_results(Data, initialAltitude=0):
 
 # Function to simulate the aircraft's response to control input changes during flight
 
-def sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thrustChange):
-    alpha, delta, theta, ub, wb, thrust = trimConditions
+def SystemControl(t, y, pitchTime, climbTime, trimParams, trimParams2, elevatorChange=0, thrustChange=0):
+    # Determine if we are in the climb phase or not
+    if pitchTime <= t < pitchTime + climbTime:
+        # During climb
+        alpha, delta, theta, ub, wb, thrust = trimParams2
+        # Apply elevator and thrust changes if specified
+        delta += delta * (elevatorChange / 100)
+        thrust += thrust * (thrustChange / 100)
+    else:
+        # Before or after climb
+        alpha, delta, theta, ub, wb, thrust = trimParams
 
-    if pitchTime < t < pitchTime + climbTime:
-        delta *= (1 + elevatorChange/100)
-        thrust *= (1 + thrustChange/100)
+    return AircraftDynamics(t, y, delta, thrust)
 
-    return Equations(t, y, delta, thrust)
+
 
 # This function modifies control inputs at specified times during the flight
 
@@ -183,19 +190,16 @@ def sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thru
 
 def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude):
     trimConditions = calculate_trim_conditions(trimVelocity, trimGamma)
+    trimConditions2 = calculate_trim_conditions(trimVelocity, trimGamma)  # Modify as needed for climb phase
 
-    # IVP library
     y = integrate.solve_ivp(
-        lambda t, y: sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thrustChange),
+        lambda t, y: SystemControl(t, y, pitchTime, climbTime, trimConditions, trimConditions2, elevatorChange, thrustChange),
         [0, t_end], 
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
         t_eval=np.linspace(0, t_end, t_end * 50)
     )
- 
-    # Send data to "display_simulation_results" function to be plotted
     display_simulation_results(y, initialAltitude)
 
-    # This function sets up and solves the initial value problem (IVP) using scipy's solve_ivp
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -291,22 +295,6 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-def sim_control2(t, y, pitchTime, climbTime, trimParams, trimParams2):
-    # Check if current time is within the climb phase
-    if pitchTime <= t < pitchTime + climbTime:
-        # During the climb, adjust the elevator and thrust to simulate a climb
-        # The actual values should be determined based on the aircraft's performance characteristics
-        delta = trimParams2[1]  # Elevator deflection for climb
-        thrust = trimParams2[5]  # Thrust setting for climb
-    else:
-        # Before and after the climb, use the trim conditions
-        delta = trimParams[1]  # Elevator deflection for trim
-        thrust = trimParams[5]  # Thrust setting for trim
-    return Equations(t, y, delta, thrust)
-
-
-
 def display_sim2(Data, initialAltitude):
     t = Data.t
     labels = [
@@ -343,7 +331,7 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
     # Loop until the aircraft reaches the target altitude or the end of simulation time
     while finalAltitude < maxAltitude and climbTime < t_end - pitchTime:
         # Simulate with current climbTime guess
-        y = integrate.solve_ivp(sim_control2, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, 1000), args=(pitchTime, climbTime, trimParams, trimParams2))
+        y = integrate.solve_ivp(SystemControl, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, 1000), args=(pitchTime, climbTime, trimParams, trimParams2))
         
         # Check the final altitude reached
         finalAltitude = -y.y[5][-1]
