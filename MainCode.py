@@ -14,7 +14,7 @@ mass = 1300.0  # Total mass of the aircraft (kg)
 inertia_yy = 7000  # Moment of inertia around the y-axis (pitching) (kg*m^2)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                     #Part A1
+                                      #Part A1
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Data for alpha, CD, CL, and CM
@@ -62,7 +62,7 @@ print(f"K = {K}")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                                Part A2
+#                                      Part A2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Defining aerodynamic coefficient functions as linear combinations of angles and constants obtained from curve fitting
@@ -129,7 +129,7 @@ def calculate_trim_conditions(trimVelocity, trimGamma):
 
 # Function to display the results of the simulation graphically
 
-def display_simulation_results(Data, initialAltitude=0):
+def DisplaySimulation_A3(Data, initialAltitude=0):
     t = Data.t
     attributes = [
         ('q', Data.y[0], "q Angular Velocity vs Time", "q [rad/s]"),
@@ -174,8 +174,6 @@ def SystemControl(t, y, pitchTime, climbTime, trimParams, trimParams2, elevatorC
 
     return AircraftDynamics(t, y, delta, thrust)
 
-
-
 # This function modifies control inputs at specified times during the flight
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,9 +190,10 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
         t_eval=np.linspace(0, t_end, t_end * 50)
     )
-    display_simulation_results(y, initialAltitude)
+    DisplaySimulation_A3(y, initialAltitude)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- #                                             Part B1
+#                                     Part B1
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # User-provided parameters for initial conditions and control input changes
@@ -276,12 +275,10 @@ def plot_trim_results(V_values, gamma_values, T_values, δE_values):
 plot_trim_results(V_values, gamma_values, T_values, δE_values)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #                                     Part B2
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def display_sim2(Data, initialAltitude):
+def DisplaySimulation_B2(Data, initialAltitude):
     t = Data.t
     labels = [
         ('$u_B$ Body Axis Velocity vs Time', '$u_B$ [m/s]'),
@@ -304,11 +301,11 @@ def display_sim2(Data, initialAltitude):
     plt.tight_layout()
     plt.show()
 
-
 def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
-    
+    # Rest of the function remains the same
+   
     climbTime = climbTimeGuess
     finalAltitude = initialAltitude  # Start at initial altitude
 
@@ -327,10 +324,13 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
             # If the desired altitude is reached, exit the loop
             break
 
-    display_sim2(y, initialAltitude)
+    DisplaySimulation_B2(y, initialAltitude)
     
     print(f"Climb Duration: {climbTime}s")
     return climbTime
 
-
 climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                                             Part C
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
