@@ -36,30 +36,20 @@ delta_el_df = pd.DataFrame(delta_el_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
 
-# Curve fitting to empirical data to find relationships between aerodynamic coefficients and angles
- 
+def Curve_Fitting(x_data, y_data, func, initial_guess, precision=5):
 
-# Curve fitting
-# Curve fitting using DataFrame
-[CL0, CLa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_df['alpha'], alpha_df['CL'], [0.04, 0.1])
-[CLde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_df['delta_el'], delta_el_df['CL_el'], [0.003])
-[CM0, CMa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_df['alpha'], alpha_df['CM'], [0.0, -0.06])
-[CMde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_df['delta_el'], delta_el_df['CM_el'], [-0.005])
-[CD0, K], _ = optimize.curve_fit(lambda x, a, b: a + b * x**2, alpha_df['CL'], alpha_df['CD'], [0.02, 0.04])
+    params, _ = optimize.curve_fit(func, x_data, y_data, initial_guess)
+    
+    return [round(param, precision) for param in params]
 
- 
+[CL0, CLa] = Curve_Fitting(alpha_df['alpha'], alpha_df['CL'], lambda x, a, b: a + b * x, [0.04, 0.1])
+[CLde] = Curve_Fitting(delta_el_df['delta_el'], delta_el_df['CL_el'], lambda x, a: x * a, [0.003])
+[CM0, CMa] = Curve_Fitting(alpha_df['alpha'], alpha_df['CM'], lambda x, a, b: a + b * x, [0.0, -0.06])
+[CMde] = Curve_Fitting(delta_el_df['delta_el'], delta_el_df['CM_el'], lambda x, a: x * a, [-0.005])
+[CD0, K] = Curve_Fitting(alpha_df['CL'], alpha_df['CD'], lambda x, a, b: a + b * x**2, [0.02, 0.04])
 
-# Printing the coefficients for verification (useful in a standalone script for debugging)
-
-print(f"CL0 = {CL0}")
-print(f"CLa = {CLa}")
-print(f"CLde = {CLde}")
-print(f"CM0 = {CM0}")
-print(f"CMa = {CMa}")
-print(f"CMde = {CMde}")
-print(f"CD0 = {CD0}")
-print(f"K = {K}") 
-
+# Print the coefficients
+print(f"CL0 = {CL0}, CLa = {CLa}, CLde = {CLde}, CM0 = {CM0}, CMa = {CMa}, CMde = {CMde}, CD0 = {CD0}, K = {K}")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                      Part A2
