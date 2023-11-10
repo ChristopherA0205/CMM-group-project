@@ -27,7 +27,7 @@ CM_list = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.02
 CM_el_list = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843]) # Pitching moment coefficient data for different elevator deflections
 CL_el_list = np.array([-0.051, -0.038, 0.0, 0.038, 0.052]) # Lift coefficient data for different elevator deflections
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
 
 # Curve fitting to empirical data to find relationships between aerodynamic coefficients and angles
  
@@ -99,31 +99,23 @@ def Equations ( t, y, delta, thrust):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Function to find the aircraft's trim conditions for a given velocity and flight path angle
-
-def find_trim_conditions(trimVelocity, trimGamma):
+# Function to calculate the trim conditions
+def calculate_trim_conditions(trimVelocity, trimGamma):
     def alpha_trim_func(alpha, trimVelocity, trimGamma):
         delta = -(CM0 + CMa * alpha) / CMde
         return (-Lift(alpha, delta, trimVelocity) * np.cos(alpha) - Drag(alpha, delta, trimVelocity) * np.sin(alpha) + mass * gravity * np.cos(alpha + trimGamma))
 
-    # Solve for alpha
     initial_guess = 0.01  # Provide an initial guess
     alpha = optimize.newton(alpha_trim_func, initial_guess, args=(trimVelocity, trimGamma))
 
-    # Solve for delta
     delta = -(CM0 + CMa * alpha) / CMde
-
-    # Calculating other variables to output
     theta = alpha + trimGamma
     ub = trimVelocity * np.cos(alpha)
     wb = trimVelocity * np.sin(alpha)
-
-    # Calculating thrust
     thrust = Engine_Thrust(alpha, delta, theta, trimVelocity)
 
     return alpha, delta, theta, ub, wb, thrust
 
-    # Trim conditions are the steady-state solutions where forces and moments are balanced
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -180,7 +172,7 @@ def sim_control(t, y, trimConditions, pitchTime, climbTime, elevatorChange, thru
 # Function to run the simulation using the initial conditions and user-defined parameters
 
 def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude):
-    trimConditions = find_trim_conditions(trimVelocity, trimGamma)
+    trimConditions = calculate_trim_conditions(trimVelocity, trimGamma)
 
     # IVP library
     y = integrate.solve_ivp(
@@ -221,21 +213,6 @@ run_simulation(velocity_0, gamma_0, 300, pitchTime, climbTime, elevatorChange, t
 
 # Assuming the necessary functions and constants like Lift, Drag, Engine_Thrust, CM0, CMa, CMde, mass, and gravity are defined elsewhere in your code
 
-# Function to calculate the trim conditions
-def calculate_trim_conditions(trimVelocity, trimGamma):
-    initial_guess = 0.01
-    alpha_trim = optimize.newton(alpha_trim_func, initial_guess, args=(trimVelocity, trimGamma))
-    delta_trim = -(CM0 + CMa * alpha_trim) / CMde
-    theta_trim = alpha_trim + trimGamma
-    ub_trim = trimVelocity * np.cos(alpha_trim)
-    wb_trim = trimVelocity * np.sin(alpha_trim)
-    thrust_trim = Engine_Thrust(alpha_trim, delta_trim, theta_trim, trimVelocity)
-    return alpha_trim, delta_trim, theta_trim, ub_trim, wb_trim, thrust_trim
-
-# Function for alpha_trim_func that was inside the Trim class
-def alpha_trim_func(alpha, trimVelocity, trimGamma):
-    delta = -(CM0 + CMa * alpha) / CMde
-    return (-Lift(alpha, delta, trimVelocity) * np.cos(alpha) - Drag(alpha, delta, trimVelocity) * np.sin(alpha) + mass * gravity * np.cos(trimGamma + trimGamma))
 
 # Define the range of velocities and flight path angles
 V_min = 50
@@ -345,9 +322,10 @@ def display_sim2(Data, initialAltitude):
 
 
 def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
-    # Calculate trim conditions for level flight and climb
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
+    # Rest of the function remains the same
+
     
     climbTime = climbTimeGuess
     finalAltitude = initialAltitude  # Start at initial altitude
@@ -374,6 +352,12 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
 
 
 climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#                                             Part C
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
