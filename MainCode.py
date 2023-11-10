@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate, optimize
- 
+import pandas as pd
 # Defining physical constants related to gravity, air properties, and aircraft characteristics
  
 gravity = 9.81  # Earth's gravitational acceleration (m/s^2)
@@ -17,15 +17,23 @@ inertia_yy = 7000  # Moment of inertia around the y-axis (pitching) (kg*m^2)
                                       #Part A1
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Creating arrays for angle of attack, elevator angle, and aerodynamic coefficients from empirical data
 
-alpha_list = np.deg2rad([-16, -12, -8, -4, -2, 0, 2, 4, 8, 12]) # Angle of attack (converted to radians)
-delta_el_list = np.deg2rad([-20, -10, 0, 10, 20]) # Elevator deflection angles (converted to radians)
-CD_list = np.array([0.115, 0.079, 0.047, 0.031, 0.027, 0.027, 0.029, 0.034, 0.054, 0.089]) # Drag coefficient data for different angles of attack
-CL_list = np.array([-1.421, -1.092, -0.695, -0.312, -0.132, 0.041, 0.218, 0.402, 0.786, 1.186]) # Lift coefficient data for different angles of attack
-CM_list = np.array([0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.0263, -0.0632, -0.1235]) # Pitching moment coefficient data for different angles of attack
-CM_el_list = np.array([0.0842, 0.0601, -0.0001, -0.0601, -0.0843]) # Pitching moment coefficient data for different elevator deflections
-CL_el_list = np.array([-0.051, -0.038, 0.0, 0.038, 0.052]) # Lift coefficient data for different elevator deflections
+# Data for alpha, CD, CL, and CM
+alpha_data = {
+    'alpha': np.deg2rad([-16, -12, -8, -4, -2, 0, 2, 4, 8, 12]),  # Converted to radians
+    'CD': [0.115, 0.079, 0.047, 0.031, 0.027, 0.027, 0.029, 0.034, 0.054, 0.089],
+    'CL': [-1.421, -1.092, -0.695, -0.312, -0.132, 0.041, 0.218, 0.402, 0.786, 1.186],
+    'CM': [0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.0263, -0.0632, -0.1235]
+}
+alpha_df = pd.DataFrame(alpha_data)
+
+# Data for delta_el, CL_el, and CM_el
+delta_el_data = {
+    'delta_el': np.deg2rad([-20, -10, 0, 10, 20]),  # Converted to radians
+    'CL_el': [-0.051, -0.038, 0.0, 0.038, 0.052],
+    'CM_el': [0.0842, 0.0601, -0.0001, -0.0601, -0.0843]
+}
+delta_el_df = pd.DataFrame(delta_el_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
 
@@ -33,11 +41,13 @@ CL_el_list = np.array([-0.051, -0.038, 0.0, 0.038, 0.052]) # Lift coefficient da
  
 
 # Curve fitting
-[CL0, CLa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_list, CL_list, [0.04, 0.1]) # Fitting a curve to find lift coefficient at zero angle of attack (CL0) and its dependence on the angle of attack (CLa)
-[CLde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_list, CL_el_list, [0.003]) # Fitting a curve to find lift coefficient dependence on elevator deflection (CLde)
-[CM0, CMa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_list, CM_list, [0.0, -0.06]) # Fitting a curve for pitching moment coefficient at zero angle of attack (CM0) and its variation with angle of attack (CMa)
-[CMde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_list, CM_el_list, [-0.005]) # Fitting a curve to find pitching moment coefficient dependence on elevator deflection (CMde)
-[CD0, K], _ = optimize.curve_fit(lambda x, a, b: a + b * x**2, CL_list, CD_list, [0.02, 0.04])  # Fitting a curve to establish a drag coefficient model (CD0) and its dependency on the lift coefficient squared (induced drag factor K)
+# Curve fitting using DataFrame
+[CL0, CLa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_df['alpha'], alpha_df['CL'], [0.04, 0.1])
+[CLde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_df['delta_el'], delta_el_df['CL_el'], [0.003])
+[CM0, CMa], _ = optimize.curve_fit(lambda x, a, b: a + b * x, alpha_df['alpha'], alpha_df['CM'], [0.0, -0.06])
+[CMde], _ = optimize.curve_fit(lambda x, a: x * a, delta_el_df['delta_el'], delta_el_df['CM_el'], [-0.005])
+[CD0, K], _ = optimize.curve_fit(lambda x, a, b: a + b * x**2, alpha_df['CL'], alpha_df['CD'], [0.02, 0.04])
+
  
 
 # Printing the coefficients for verification (useful in a standalone script for debugging)
@@ -352,12 +362,6 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
 
 
 climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#                                             Part C
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
