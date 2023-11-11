@@ -76,11 +76,23 @@ def Engine_Thrust(alpha, delta, theta, V): return Drag(alpha, delta, V) * np.cos
 
 
 def AircraftDynamics ( t, y, delta, thrust):
+   
+    """
+    Defines the differential equations for the aircraft's motion.
+    t: time
+    y: state vector [q, theta, ub, wb, xe, ze]
+    delta: elevator deflection angle
+    thrust: engine thrust
+    Returns the time derivatives of the state vector.
+    """
+    
     q, theta, ub, wb, xe, ze = y
  
     alpha = np.arctan2(wb, ub)
     velocity = np.sqrt(ub**2 + wb**2)
- 
+
+   # Differential equations for aircraft motion
+    
     dq_dt = (Moment(alpha, delta, velocity)/inertia_yy)
     dtheta_dt = q
  
@@ -117,10 +129,10 @@ def calculate_trim_conditions(trimVelocity, trimGamma):
 #                                     Part A3
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Function to display the results of the simulation graphically
-
 def DisplaySimulation_A3(Data, initialAltitude=0):
-    t = Data.t
+    t = Data.t  #Time array from simulation data
+   
+    # Array of tuples containing variable names, values, titles for plots, and y-axis labels
     attributes = [
         ('q', Data.y[0], "q Angular Velocity vs Time", "q [rad/s]"),
         ('theta', Data.y[1], "${\Theta}$ Pitch Angle vs Time", "${\Theta}$ [$^{0}$]"),
@@ -130,7 +142,7 @@ def DisplaySimulation_A3(Data, initialAltitude=0):
         ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "Altitude h [m]")
     ]
 
-    fig, ax = plt.subplots(3, 2, figsize=(12, 10))
+    fig, ax = plt.subplots(3, 2, figsize=(12, 10)) # Creating subplots for each attribute
 
     # Loop through each attribute and create its subplot
     
@@ -142,15 +154,26 @@ def DisplaySimulation_A3(Data, initialAltitude=0):
         ax[row, col].set_xlabel("t [s]")
 
     plt.tight_layout()
-    plt.show()
-
-    # Plots are created for each state variable against time using matplotlib
+    plt.show()  #Dispalying all the plots 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Function to simulate the aircraft's response to control input changes during flight
 
 def SystemControl(t, y, pitchTime, climbTime, trimParams, trimParams2, elevatorChange=0, thrustChange=0):
+    
+    """
+    Adjusts the aircraft's control parameters based on the phase of the flight.
+    t: current time
+    y: state vector
+    pitchTime: time at which pitch maneuver starts
+    climbTime: duration of the climb phase
+    trimParams: trim conditions before and after climb
+    trimParams2: trim conditions during climb
+    elevatorChange: percentage change in elevator deflection
+    thrustChange: percentage change in thrust
+    """
+    
     # Determine if we are in the climb phase or not
     if pitchTime <= t < pitchTime + climbTime:
         # During climb
@@ -171,15 +194,30 @@ def SystemControl(t, y, pitchTime, climbTime, trimParams, trimParams2, elevatorC
 # Function to run the simulation using the initial conditions and user-defined parameters
 
 def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude):
+    
+    """
+    Runs the aircraft simulation over a specified time range and control input changes.
+    trimVelocity: initial trim velocity
+    trimGamma: initial trim flight path angle
+    t_end: end time of the simulation
+    pitchTime: time at which pitch maneuver starts
+    climbTime: duration of the climb phase
+    elevatorChange: percentage change in elevator deflection during climb
+    thrustChange: percentage change in thrust during climb
+    initialAltitude: initial altitude of the aircraft
+    """
+    # Calculate initial trim conditions for the flight   
     trimConditions = calculate_trim_conditions(trimVelocity, trimGamma)
-    trimConditions2 = calculate_trim_conditions(trimVelocity, trimGamma)  # Modify as needed for climb phase
-
+    trimConditions2 = calculate_trim_conditions(trimVelocity, trimGamma)  
+    
+    # Solve the initial value problem for the aircraft's motion
     y = integrate.solve_ivp(
         lambda t, y: SystemControl(t, y, pitchTime, climbTime, trimConditions, trimConditions2, elevatorChange, thrustChange),
         [0, t_end], 
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
         t_eval=np.linspace(0, t_end, t_end * 50)
     )
+    # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,10 +250,11 @@ gamma_max = 1
 V_step = 10
 gamma_step = 0.1
 
+# Generate arrays of velocity and flight path angle values within the specified range
 V_values = np.arange(V_min, V_max, V_step)
 gamma_values = np.arange(gamma_min, gamma_max, gamma_step)
 
-# Initialize arrays to store the results
+# Initialize arrays to store the results of thrust and elevator deflection for each combination
 T_values = np.empty((len(V_values), len(gamma_values)))
 δE_values = np.empty((len(V_values), len(gamma_values)))
 
@@ -223,8 +262,8 @@ T_values = np.empty((len(V_values), len(gamma_values)))
 for i, V in enumerate(V_values):
     for j, γ in enumerate(gamma_values):
         _, delta_trim, _, _, _, thrust_trim = calculate_trim_conditions(V, γ)
-        T_values[i, j] = thrust_trim
-        δE_values[i, j] = np.rad2deg(delta_trim)
+        T_values[i, j] = thrust_trim # Store thrust trim value
+        δE_values[i, j] = np.rad2deg(delta_trim) # Store elevator deflection trim value in degrees
 
 
 def plot_subplot(ax, x_data, y_data_series, x_label, y_label, title, legend_labels):
@@ -269,7 +308,14 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def DisplaySimulation_B2(Data, initialAltitude):
-    t = Data.t
+    
+    """
+    Displays the simulation results for various aircraft state variables over time.
+    Data: Simulation data containing time and state variables
+    initialAltitude: The initial altitude of the aircraft
+    """    
+    # Labels for plotting the state variables 
+    t = Data.t # Time array from the simulation data
     labels = [
         ('$u_B$ Body Axis Velocity vs Time', '$u_B$ [m/s]'),
         ('$w_B$ Body Axis Velocity vs Time', '$w_B$ [m/s]'),
@@ -278,24 +324,36 @@ def DisplaySimulation_B2(Data, initialAltitude):
         ('$x_E$ Horizontal Position vs Time', '$x_e$ [m]'),
         ('Altitude vs Time', 'Altitude h [m]')
     ]
+    # Extracting the state variables from the simulation data
     variables = [Data.y[2], Data.y[3], Data.y[1], Data.y[0], Data.y[4], -Data.y[5]]
     
     fig, ax = plt.subplots(3, 2, figsize=(12, 10))
     
-    for i, axi in enumerate(ax.flat):
-        axi.plot(t, variables[i])
-        axi.set_title(labels[i][0], fontsize=12)
-        axi.set_ylabel(labels[i][1], rotation='horizontal')
-        axi.set_xlabel("t [s]")
+    for i, axi in enumerate(ax.flat):  # Looping through each variable to create its subplot
+        axi.plot(t, variables[i]) # Plotting the variable over time
+        axi.set_title(labels[i][0], fontsize=12) # Setting the title for each subplot
+        axi.set_ylabel(labels[i][1], rotation='horizontal') # Setting the y-axis label
+        axi.set_xlabel("t [s]") # Setting the x-axis label
     
     plt.tight_layout()
     plt.show()
 
 def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
+    
+    """
+    Finds the duration of climb required to reach a specified maximum altitude.
+    trimVelocity, trimGamma: Initial trim conditions in terms of velocity and flight path angle
+    t_end: End time for the simulation
+    initialAltitude: Starting altitude of the aircraft
+    maxAltitude: Target altitude to reach
+    pitchTime: Time at which the pitch maneuver starts
+    climbVelocity, climbGamma: Velocity and flight path angle during the climb
+    climbTimeGuess: Initial guess for the duration of the climb
+    climbStep: Step size to incrementally increase climb time during the search
+    """
+    # Calculate trim conditions for level flight and climb phase
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
-    # Rest of the function remains the same
-   
     climbTime = climbTimeGuess
     finalAltitude = initialAltitude  # Start at initial altitude
 
@@ -320,6 +378,10 @@ def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
     return climbTime
 
 climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                                             Part C
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                             Part C
