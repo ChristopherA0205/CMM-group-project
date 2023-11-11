@@ -4,124 +4,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate, optimize
 import pandas as pd
+import Trim_Conditions as trim
+import Constants_and_Data as c
+import Functions as F
 # Defining physical constants related to gravity, air properties, and aircraft characteristics
  
-gravity = 9.81  # Earth's gravitational acceleration (m/s^2)
-air_density = 1.0065  # Density of air at sea level at 15 degrees Celsius (kg/m^3)
-wing_surface = 20.0  #Total surface area of the airplane's wings (m^2)
-cbar = 1.75  # Average aerodynamic chord of the wing (m)
-mass = 1300.0  # Total mass of the aircraft (kg)
-inertia_yy = 7000  # Moment of inertia around the y-axis (pitching) (kg*m^2)
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                      #Part A1
+                                             #Part A1
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Data for alpha, CD, CL, and CM
-alpha_data = {
-    'alpha': np.deg2rad([-16, -12, -8, -4, -2, 0, 2, 4, 8, 12]),  # Converted to radians
-    'CD': [0.115, 0.079, 0.047, 0.031, 0.027, 0.027, 0.029, 0.034, 0.054, 0.089],
-    'CL': [-1.421, -1.092, -0.695, -0.312, -0.132, 0.041, 0.218, 0.402, 0.786, 1.186],
-    'CM': [0.0775, 0.0663, 0.053, 0.0337, 0.0217, 0.0073, -0.009, -0.0263, -0.0632, -0.1235]
-}
-alpha_df = pd.DataFrame(alpha_data)
-
-# Data for delta_el, CL_el, and CM_el
-delta_el_data = {
-    'delta_el': np.deg2rad([-20, -10, 0, 10, 20]),  # Converted to radians
-    'CL_el': [-0.051, -0.038, 0.0, 0.038, 0.052],
-    'CM_el': [0.0842, 0.0601, -0.0001, -0.0601, -0.0843]
-}
-delta_el_df = pd.DataFrame(delta_el_data)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
-
-def Curve_Fitting(x_data, y_data, func, initial_guess, precision=5):
-
-    params, _ = optimize.curve_fit(func, x_data, y_data, initial_guess)
-    
-    return [round(param, precision) for param in params]
-
-[CL0, CLa] = Curve_Fitting(alpha_df['alpha'], alpha_df['CL'], lambda x, a, b: a + b * x, [0.04, 0.1])
-[CLde] = Curve_Fitting(delta_el_df['delta_el'], delta_el_df['CL_el'], lambda x, a: x * a, [0.003])
-[CM0, CMa] = Curve_Fitting(alpha_df['alpha'], alpha_df['CM'], lambda x, a, b: a + b * x, [0.0, -0.06])
-[CMde] = Curve_Fitting(delta_el_df['delta_el'], delta_el_df['CM_el'], lambda x, a: x * a, [-0.005])
-[CD0, K] = Curve_Fitting(alpha_df['CL'], alpha_df['CD'], lambda x, a, b: a + b * x**2, [0.02, 0.04])
 
 # Print the coefficients
-print(f"CL0 = {CL0}, CLa = {CLa}, CLde = {CLde}, CM0 = {CM0}, CMa = {CMa}, CMde = {CMde}, CD0 = {CD0}, K = {K}")
+print(f"CL0 = {F.CL0}, CLa = {F.CLa}, CLde = {F.CLde}, CM0 = {F.CM0}, CMa = {F.CMa}, CMde = {F.CMde}, CD0 = {F.CD0}, K = {F.K}")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                      Part A2
+#                                            Part A2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Defining aerodynamic coefficient functions as linear combinations of angles and constants obtained from curve fitting
 
- 
-# Coefficients
-def CL(alpha, delta): return CL0 + CLa * alpha + CLde * delta
-def CM(alpha, delta): return CM0 + CMa * alpha + CMde * delta
-def CD(alpha, delta): return CD0 + K * CL(alpha, delta)**2
-
-# Defining forces and moment functions that depend on velocity, angles of attack, and elevator deflection
-
-def Lift(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * CL(alpha, delta)
-def Drag(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * CD(alpha, delta)
-def Moment(alpha, delta, V): return 0.5 * air_density * V**2 * wing_surface * cbar * CM(alpha, delta)
-def Engine_Thrust(alpha, delta, theta, V): return Drag(alpha, delta, V) * np.cos(alpha) - Lift(alpha, delta, V) * np.sin(alpha) + mass * gravity * np.sin(theta)
  
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Defining the differential equations governing the aircraft's motion
-
-
-def AircraftDynamics ( t, y, delta, thrust):
-   
-    """
-    Defines the differential equations for the aircraft's motion.
-    t: time
-    y: state vector [q, theta, ub, wb, xe, ze]
-    delta: elevator deflection angle
-    thrust: engine thrust
-    Returns the time derivatives of the state vector.
-    """
-    
-    q, theta, ub, wb, xe, ze = y
- 
-    alpha = np.arctan2(wb, ub)
-    velocity = np.sqrt(ub**2 + wb**2)
-
-   # Differential equations for aircraft motion
-    
-    dq_dt = (Moment(alpha, delta, velocity)/inertia_yy)
-    dtheta_dt = q
- 
-    dub_dt = (Lift(alpha, delta, velocity) * np.sin(alpha) - Drag(alpha, delta, velocity) * np.cos(alpha) - mass * q * wb - mass * gravity * np.sin(theta) + thrust) / mass
-    dwb_dt = (-Lift(alpha, delta, velocity) * np.cos(alpha) - Drag(alpha, delta, velocity) * np.sin(alpha) + mass * q * ub + mass * gravity * np.cos(theta)) / mass
- 
-    dxe_dt = ub * np.cos(theta) + wb * np.sin(theta)
-    dze_dt = - ub * np.sin(theta) + wb * np.cos(theta)
- 
-    return dq_dt, dtheta_dt, dub_dt, dwb_dt, dxe_dt, dze_dt
-
-    # These equations are derived from the aircraft's equations of motion
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Function to calculate the trim conditions
 def calculate_trim_conditions(trimVelocity, trimGamma):
     def alpha_trim_func(alpha, trimVelocity, trimGamma):
-        delta = -(CM0 + CMa * alpha) / CMde
-        return (-Lift(alpha, delta, trimVelocity) * np.cos(alpha) - Drag(alpha, delta, trimVelocity) * np.sin(alpha) + mass * gravity * np.cos(alpha + trimGamma))
+        delta = -(F.CM0 + F.CMa * alpha) / F.CMde
+        return (-F.Lift(alpha, delta, trimVelocity) * np.cos(alpha) - F.Drag(alpha, delta, trimVelocity) * np.sin(alpha) + c.mass * c.gravity * np.cos(alpha + trimGamma))
 
     initial_guess = 0.01  # Provide an initial guess
     alpha = optimize.newton(alpha_trim_func, initial_guess, args=(trimVelocity, trimGamma))
 
-    delta = -(CM0 + CMa * alpha) / CMde
+    delta = -(F.CM0 + F.CMa * alpha) / F.CMde
     theta = alpha + trimGamma
     ub = trimVelocity * np.cos(alpha)
     wb = trimVelocity * np.sin(alpha)
-    thrust = Engine_Thrust(alpha, delta, theta, trimVelocity)
+    thrust = F.Engine_Thrust(alpha, delta, theta, trimVelocity)
 
     return alpha, delta, theta, ub, wb, thrust
 
@@ -185,7 +107,7 @@ def SystemControl(t, y, pitchTime, climbTime, trimParams, trimParams2, elevatorC
         # Before or after climb
         alpha, delta, theta, ub, wb, thrust = trimParams
 
-    return AircraftDynamics(t, y, delta, thrust)
+    return F.AircraftDynamics(t, y, delta, thrust)
 
 # This function modifies control inputs at specified times during the flight
 
@@ -220,39 +142,17 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
     # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
 
+# Function to run the simulation using the initial conditions and user-defined parameters
+
+run_simulation(trim.velocity_0, trim.gamma_0, 300, trim.pitchTime, trim.climbTime, trim.elevatorChange, trim.thrustChange, trim.initialAltitude)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                     Part B1
+#                                               Part B1
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# User-provided parameters for initial conditions and control input changes
-
-velocity_0 = 100 # Initial velocity (m/s)
-gamma_0 = 0 # Initial flight path angle (radians)
-
-pitchTime = 100 # Time in seconds after simulation start at which the values are changed
-climbTime = 300 # Duration of climb in seconds
-
-elevatorChange = 10 # in percent
-thrustChange = 0 # in percent
-
-initialAltitude = 2000 # Altitude at t=0
-
-# Starting the simulation with the defined parameters
-
-run_simulation(velocity_0, gamma_0, 300, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude)
-
-# Define the range of velocities and flight path angles
-V_min = 50
-V_max = 210 #In order to get an upper bound of 200, since step size is 10
-gamma_min = 0
-gamma_max = 1
-
-V_step = 10
-gamma_step = 0.1
 
 # Generate arrays of velocity and flight path angle values within the specified range
-V_values = np.arange(V_min, V_max, V_step)
-gamma_values = np.arange(gamma_min, gamma_max, gamma_step)
+V_values = np.arange(trim.V_min, trim.V_max, trim.V_step)
+gamma_values = np.arange(trim.gamma_min, trim.gamma_max, trim.gamma_step)
 
 # Initialize arrays to store the results of thrust and elevator deflection for each combination
 T_values = np.empty((len(V_values), len(gamma_values)))
@@ -303,6 +203,7 @@ def plot_trim_results(V_values, gamma_values, T_values, δE_values):
 
 plot_trim_results(V_values, gamma_values, T_values, δE_values)
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                     Part B2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -338,51 +239,50 @@ def DisplaySimulation_B2(Data, initialAltitude):
     plt.tight_layout()
     plt.show()
 
-def find_climb_time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
-    
-    """
-    Finds the duration of climb required to reach a specified maximum altitude.
-    trimVelocity, trimGamma: Initial trim conditions in terms of velocity and flight path angle
-    t_end: End time for the simulation
-    initialAltitude: Starting altitude of the aircraft
-    maxAltitude: Target altitude to reach
-    pitchTime: Time at which the pitch maneuver starts
-    climbVelocity, climbGamma: Velocity and flight path angle during the climb
-    climbTimeGuess: Initial guess for the duration of the climb
-    climbStep: Step size to incrementally increase climb time during the search
-    """
-    # Calculate trim conditions for level flight and climb phase
+def sim_control_level_flight(t, y, trimParams):
+    delta = trimParams[1]
+    thrust = trimParams[5]
+    return F.AircraftDynamics(t, y, delta, thrust)
+
+def sim_control_climb(t, y, trimParams2):
+    delta = trimParams2[1]
+    thrust = trimParams2[5]
+    return F.AircraftDynamics(t, y, delta, thrust)
+
+def combined_sim_control(t, y, trimParams, trimParams2, pitchTime, climbTime):
+    if pitchTime <= t < pitchTime + climbTime:
+        return sim_control_climb(t, y, trimParams2)
+    else:
+        return sim_control_level_flight(t, y, trimParams)
+
+
+
+def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude, pitchTime, climbVelocity, climbGamma, climbTimeGuess=0, climbStep=0.5):
     trimParams = calculate_trim_conditions(trimVelocity, trimGamma)
     trimParams2 = calculate_trim_conditions(climbVelocity, climbGamma)
-    climbTime = climbTimeGuess
-    finalAltitude = initialAltitude  # Start at initial altitude
 
-    # Loop until the aircraft reaches the target altitude or the end of simulation time
-    while finalAltitude < maxAltitude and climbTime < t_end - pitchTime:
-        # Simulate with current climbTime guess
-        y = integrate.solve_ivp(SystemControl, [0, t_end], [0, 0.01646, 99.986, 1.646, 0, -initialAltitude], t_eval=np.linspace(0, t_end, 1000), args=(pitchTime, climbTime, trimParams, trimParams2))
-        
-        # Check the final altitude reached
+    climbTime = climbTimeGuess
+    finalAltitude = initialAltitude
+
+    while finalAltitude < maxAltitude:
+        y = integrate.solve_ivp(
+            lambda t, y: combined_sim_control(t, y, trimParams, trimParams2, pitchTime, climbTime),
+            [0, t_end], 
+            [0, trimParams[2], trimParams[3], trimParams[4], 0, -initialAltitude],
+            t_eval=np.linspace(0, t_end, t_end * 50)
+        )
         finalAltitude = -y.y[5][-1]
-        
-        # If the desired altitude is not reached, increase the climbTime
         if finalAltitude < maxAltitude:
             climbTime += climbStep
-        else:
-            # If the desired altitude is reached, exit the loop
-            break
+
+    DisplaySimulation_B2(y, initialAltitude)
+    print(f"Climb Duration: {climbTime}s")
+    return climbTime
+
 
     DisplaySimulation_B2(y, initialAltitude)
     
     print(f"Climb Duration: {climbTime}s")
     return climbTime
 
-climb_duration = find_climb_time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                             Part C
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                             Part C
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+climb_duration = Find_Climb_Time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
