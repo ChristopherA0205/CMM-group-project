@@ -63,7 +63,7 @@ UserInterface.py: The first file you should open. It launches the graphical user
 
 MainCode.py: The file where all the computations are done, then imported to the UserInterface.py file.
 
-Constants.py: This file was created in order to store all the constants used in the code. The module is then imported
+Constants_and_Data.py: This file was created in order to store all the constants used in the code. The module is then imported
 as 'c' for ease of use. Additionally large data sets, such as the expieramental data used to calculate the coefficients
 are stored here. This file does not contain data specific for trim conditions.
 
@@ -71,7 +71,7 @@ Functions.py: This file is used to store small functions such as CD, CM and CL w
 to calculate aerodynamic parameters. This module is imported as 'L'. Large simulation functions are included in the main
 code. 
 
-TrimConditions.py: Although containing constants, this module is specific for trim condition values in order to import
+Trim_Conditions.py: Although containing constants, this module is specific for trim condition values in order to import
 them in the later calculations of late part A and part B. 
 
 
