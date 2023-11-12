@@ -1,3 +1,15 @@
+"""
+UserInterface.py
+
+This module contains the code to run the user interface, allowing a user to easily input values and commands and in return generating specified outputs.
+The first part of the GUI takes inputs of velocity and flight path angle, and then returns the trim conditions at which the plane is in equilibrium.
+The second part takes another series of input commands, including a starting altitude, step changes in elevator angle and/or thrust, and simulation duration. 
+The GUI then outputs the plots of how some chosen parameters behave during the simulation, due to given inputs. 
+"""
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# importing necessary modules for user interface
+
 import PySimpleGUI as sg
 import MainCode as mc
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -19,7 +31,7 @@ def draw_figure(canvas, figure):
 sg.theme('LightBlue7')
 
 layout = [[sg.Text('Please input values for velocity and flight path angle:'), sg.Text(size=(15,1))],
-          [sg.Text('Velocity, V:', size=(10, 1)), sg.Input(key='-VELOCITY-'), sg.Text('Flight Path angle, \u03b3:', size=(15, 1)), sg.Input(key='-FLIGHT_PATH_ANGLE-')],
+          [sg.Text('Velocity, V (m/s):', size=(10, 1)), sg.Input(key='-VELOCITY-'), sg.Text('Flight Path angle, \u03b3 (rad):', size=(15, 1)), sg.Input(key='-FLIGHT_PATH_ANGLE-')],
           [sg.Text('Resulting trim conditions:'), sg.Text(size=(2,1)), sg.Text('Angle of Attack, \u03b1 (rad):', size=(17, 1)), sg.Text(key='-Output_1-'), sg.Text('Thrust, T (N):', size=(10, 1)), sg.Text(key='-Output_2-'), sg.Text('Elevator Angle, \u03b4 (rad):', size=(17, 1)), sg.Text(key='-Output_3-')],
           [sg.Button('Trim')],
           [sg.Text('Initial Altitude (m):', size=(30, 1)), sg.Input(key='-INITIAL_ALTITUDE-')],
