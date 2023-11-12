@@ -19,6 +19,7 @@ cbar = 1.75  # Average aerodynamic chord of the wing (m)
 mass = 1300.0  # Total mass of the aircraft (kg)
 inertia_yy = 7000  # Moment of inertia around the y-axis (pitching) (kg*m^2)
 
+#Data converted from an array into list  and organized using the pandas library
 
 # Data for alpha, CD, CL, and CM
 alpha_data = {
