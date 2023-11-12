@@ -1,17 +1,22 @@
-
-
-
 import PySimpleGUI as sg
-import final_comp_project as fcp
+import MainCode as mc
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-matplotlib.use('TkAgg')
+# function used to update interface window with plots
 
+def draw_figure(canvas, figure):
+   tkcanvas = FigureCanvasTkAgg(figure, canvas)
+   tkcanvas.draw()
+   tkcanvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+   return tkcanvas
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# code to set layout for the interface window
 
 sg.theme('LightBlue7')
-
 
 layout = [[sg.Text('Please input values for velocity and flight path angle:'), sg.Text(size=(15,1))],
           [sg.Text('Velocity, V:', size=(10, 1)), sg.Input(key='-VELOCITY-'), sg.Text('Flight Path angle, \u03b3:', size=(15, 1)), sg.Input(key='-FLIGHT_PATH_ANGLE-')],
@@ -20,34 +25,29 @@ layout = [[sg.Text('Please input values for velocity and flight path angle:'), s
           [sg.Text('Initial Altitude (m):', size=(30, 1)), sg.Input(key='-INITIAL_ALTITUDE-')],
           [sg.Text('Value of Elevator Angle Increase (%):', size=(30, 1)), sg.Input(key='-ELEV_INCREASE-'), sg.Text('Value of Thrust Increase (N):', size=(30, 1)), sg.Input(key='-THRUST_INCREASE-')],
           [sg.Text('Duration of Trim Condition (s):', size=(30, 1)), sg.Input(key='-TRIM_TIME-'), sg.Text('Value of Climb Duration (s):', size=(30, 1)), sg.Input(key='-CLIMB_TIME-')],
-          [sg.Canvas(key='-CANVAS-')],
+          [sg.Push(), sg.Canvas(key='-CANVAS-'), sg.Push()],
           [sg.Button('Evaluate'), sg.Button('Exit')]]
 
+window = sg.Window('Flight Simulation', layout, resizable=True,
+                   grab_anywhere=True, keep_on_top=True, finalize=True)
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def draw_figure(canvas, figure):
-   tkcanvas = FigureCanvasTkAgg(figure, canvas)
-   tkcanvas.draw()
-   tkcanvas.get_tk_widget().pack(side='top', fill='both', expand=1)
-   return tkcanvas
-
-
-
-window = sg.Window('Flight Simulation', layout, resizable=True)
+# event loop updating interface window depending on event 
 
 while True:  # Event Loop
     event, values = window.read()
     print(event, values)
-    if event == sg.WIN_CLOSED or event == 'Exit':
+    if event == sg.WIN_CLOSED or event == 'Exit': # event to exit the user interface
         break
-    if event == 'Trim':
-        trimVelocity = float(values['-VELOCITY-'])
+    if event == 'Trim': # event for if trim button pushed
+        trimVelocity = float(values['-VELOCITY-']) # setting input values as variables
         trimGamma = float(values['-FLIGHT_PATH_ANGLE-'])
-        alpha, delta, theta, ub, wb, thrust = fcp.find_trim_conditions(trimVelocity, trimGamma)
-        window['-Output_1-'].update(alpha)
-        window['-Output_2-'].update(thrust)
-        window['-Output_3-'].update(delta)
-    if event == 'Evaluate':
+        alpha, delta, theta, ub, wb, thrust = mc.calculate_trim_conditions(trimVelocity, trimGamma) # running function from main code
+        window['-Output_1-'].update(round(alpha, 4)) # updating layout with outputs
+        window['-Output_2-'].update(round(thrust, 4))
+        window['-Output_3-'].update(round(delta, 4))
+    if event == 'Evaluate': # event for if evaluate button is pushed
         trimVelocity = int(float(values['-VELOCITY-']))
         trimGamma = int(float(values['-FLIGHT_PATH_ANGLE-']))
         initialAltitude = int(float(values['-INITIAL_ALTITUDE-']))
@@ -56,12 +56,8 @@ while True:  # Event Loop
         pitchTime = int(float(values['-TRIM_TIME-']))
         climbTime = int(float(values['-CLIMB_TIME-']))
         t_end = pitchTime + climbTime
-        y = fcp.run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude)
-        simulation_figure = fcp.display_simulation_results(y, initialAltitude)
-        print("Simulation Data:", y)
-        tkcanvas = draw_figure(window['-CANVAS-'].TKCanvas, simulation_figure)
+        y = mc.run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevatorChange, thrustChange, initialAltitude)
+        simulation_figure = mc.DisplaySimulation_A3(y, initialAltitude)
+        tkcanvas = draw_figure(window['-CANVAS-'].TKCanvas, simulation_figure) # update the layout with the plots
         
-        
-        
-        
-window.close()
+window.close() # close window after event loop broken
