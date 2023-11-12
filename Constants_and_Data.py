@@ -6,7 +6,9 @@ This module will be used to store general constants and data sets used frequentl
 This module will not contain constants directly relatie to the trim conditions to avoid confusion between
 constants and initial conditions.
 '''
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Part A1:                                         
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Defining physical constants related to gravity, air properties, and aircraft characteristics
  
@@ -34,3 +36,12 @@ delta_el_data = {
     'CM_el': [0.0842, 0.0601, -0.0001, -0.0601, -0.0843]  # Moment coefficient data related to elevator angle
 }
 delta_el_df = pd.DataFrame(delta_el_data)  # Creating DataFrame for delta_el-related data
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Rest of Code:                                         
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+''' No new constants or large extracts of data are introduced in the simulation code which are not directly correlated
+to the trim conditions. Please find all code which is related to simulating the trim conditions in the Trim_Conditions.py
+file. The Trim_Conditions.py file carrys alot fo the initial conditions and time conditions used in the later parts of the
+code'''
