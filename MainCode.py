@@ -85,6 +85,7 @@ def DisplaySimulation_A3(Data, initialAltitude=0):
 
     plt.tight_layout()
     plt.show()  #Dispalying all the plots 
+    return fig
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -149,6 +150,7 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
     )
     # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
+    return y
 
 # Function to run the simulation using the initial conditions and user-defined parameters
 
