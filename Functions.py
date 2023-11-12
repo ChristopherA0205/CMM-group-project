@@ -7,10 +7,12 @@ import numpy as np
 from scipy import optimize
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Part A1:                                         
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 '''The curve fitting function used to solve for the coefficients in part A1 , constants are imported from the constants.py
-file.
+file. Optimize from the scipy library is used to create a line of best fit and solve for the coefficients.
 '''
 
 def Curve_Fitting(x_data, y_data, func, initial_guess, precision=5):
@@ -25,10 +27,13 @@ def Curve_Fitting(x_data, y_data, func, initial_guess, precision=5):
 [CMde] = Curve_Fitting(c.delta_el_df['delta_el'], c.delta_el_df['CM_el'], lambda x, a: x * a, [-0.005])
 [CD0, K] = Curve_Fitting(c.alpha_df['CL'], c.alpha_df['CD'], lambda x, a, b: a + b * x**2, [0.02, 0.04])
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Part A2:                                           
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
-# Defining aerodynamic coefficient functions as linear combinations of angles and constants obtained from curve fitting
+'''Defining aerodynamic coefficient functions as linear combinations of angles and constants obtained from curve fitting
+These functions will be used repeatedly in the code to calculate theta, delta and other aerodynamic parameters
+'''
 
 # Function to calculate Lift Coefficient (CL) based on angle of attack (alpha) and elevator deflection (delta)
 def CL(alpha, delta): 
@@ -61,6 +66,8 @@ def Engine_Thrust(alpha, delta, theta, V):
     return Drag(alpha, delta, V) * np.cos(alpha) - Lift(alpha, delta, V) * np.sin(alpha) + c.mass * c.gravity * np.sin(theta)
  
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Part A3:                                           
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     
 def AircraftDynamics ( t, y, delta, thrust):
@@ -92,6 +99,13 @@ def AircraftDynamics ( t, y, delta, thrust):
  
     return dq_dt, dtheta_dt, dub_dt, dwb_dt, dxe_dt, dze_dt
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Part B                                           
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+ 
+''' No new equations worth adding to this file were introduced as the code takes a turn to engineering design
+ tasks rather than computing paramaters using trim conditions. The code becomes simulation heavy, which is 
+ integrated into the Main_Code.py file'''
     
     
     
