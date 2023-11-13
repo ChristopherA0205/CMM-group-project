@@ -31,7 +31,7 @@
 Hello and welcome to the group 17 flight simulator! 
 
 This file will explain to you step by step what each componenet of the code does, and how to make the most out of it.  
-
+The first file you should open it the UserInterface.py
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                           
@@ -60,6 +60,8 @@ IMPORTANT: Please find all of the main code which allows the user interface to w
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
 UserInterface.py: The first file you should open. It launches the graphical user interface used for testing and simulations.
+All the code in this file runs by the simulations in the MainCode.py, which is then imported to this file for the user to test.
+
 
 MainCode.py: The file where all the computations are done, then imported to the UserInterface.py file.
 
