@@ -39,19 +39,29 @@ The first file you should open is 'UserInterface.py'.
                                                          User Guide                            
                              
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                       
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     
 
+•	Prior to running the script, please ensure that the 'PySimpleGUI' module is installed in your 
+  Python environment, as this is a requirement for the code to run.
+  
+•	Once installed, open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the 
+  appropriate directory, to guarantee the expected operation of the User Interface (UI). 
+  
+•	Input specified values and press the ‘trim’ button to calculate dynamic equilibrium of the aircraft.
 
-•	First open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the appropriate 
-directory, to guarantee the expected operation of the User Interface (UI). Prior to running the script, please ensure that 
-the 'PySimpleGUI' module is installed in your Python environment, as this is a requirement for the code to run.
-   
-•	Input values of ‘Velocity’ and ‘Flight Path Angle’ and press the ‘trim’ button to calculate dynamic equilibrium 
-of the aircraft.
+•	To simulate the response of the aircraft to changes, input the values show and press the ‘evaluate’ button.
 
-•	To simulate the response of the aircraft to changes, input the values shown (including ‘Initial Altitude’, 
-the step changes in ‘Thrust’ and ‘Elevator Angle’, and the simulation duration before and after the step change’) 
-and press the ‘evaluate’ button.
+#### List of values that needs to be input by user
+| Input | Description and Limitations | Units | Options (example) |
+| --------- | ----------- | ---- | ----------------- |
+| `Velocity` | Velocity of aircraft must be positive, with an approx. max. value of 200 | `m/s` | 100 |
+| `Flight Path Angle` | Angle between earth axis and trajectory, with an approx. value between -0.25 and 1 | `radians` | 0.05 |
+| `Initial ALtitude` | Cruising altitude of a small aircraft should be somewhere between 1000 and 3000| `metres` | 2000 |
+| `Value of Elevator Angle Increase` | Percentage change in Elevator Angle, should be between -100 and 100 | `%` | 10 |
+| `Value of Thrust Increase` | Thrust increase value can be positive or negative, with a reasonable magnitude being between 0 and 50 | `N` | -20 |
+| `Duration of Trim Condition` | How long the aircraft will stay at the trim coniditon calculated prior | `seconds` | 100 |
+| `Value of Climb Duration` | How long the simulation will last for after the step change is incorporated | `seconds` | 300 |
+
 
 This simulation tool is designed to model the flight dynamics of a small aircraft. When the 'trim' function is executed, 
 it takes the user-defined inputs and calculates the parameters at which the aircraft is in perfect dynamic equilibrium, 
