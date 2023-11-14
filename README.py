@@ -83,62 +83,13 @@ as 'c' for ease of use. Additionally large data sets, such as the expieramental 
 are stored here. This file does not contain data specific for trim conditions.
 
 Functions.py: This file is used to store small functions such as CD, CM and CL which will be used repeatedly in the code
-to calculate aerodynamic parameters. This module is imported as 'L'. Large simulation functions are included in the main
+to calculate aerodynamic parameters. This module is imported as 'F'. Large simulation functions are included in the main
 code. 
 
 Trim_Conditions.py: Although containing constants, this module is specific for trim condition values in order to import
 them in the later calculations of late part A and part B. 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                                                           
-                                     
-                                     Code Breakdown: For your interest, not needed to test the code.                          
-                            
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                           
-                            
-                                                          Section A
-                
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-The code in this section computes the coefficients of lift (CL), drag (CD), and pitching moment (CM) from a given  
-set of experimental data. It uses the scipy.optimize module to perform curve fitting. Upon defining the aerodynamic 
-coefficients, the code calculates the trim conditions for a specified velocity (V) and flight path angle (γ).   
-It determines the required angle of attack (α), thrust (T), and elevator angle (δE) that achieve a steady-state 
-flight condition with no acceleration. 
-
-The simulation initiates from the aircraft's trim conditions, then computes and displays the response of the 
-system to time-dependent control inputs such as changes in thrust (T) and elevator angle (δE). The graphs are
-plotted using the matplotlib.pyplot library.  
- 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                           
-                            
-                                                          Section B
-                
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
- 
-Part B1 conducts trim analysis over a range of velocities (V) and flight path angles (γ) to determine the necessary 
-thrust (T) and elevator angle (δE) adjustments for stable flight. Graphical outputs illustrate the dependencies of 
-T and δE on V and γ, adhering to physical constraints such as a positive thrust value and viable control angles as well
-as constraints due to the range of the experimental data used to calculate aerodynamic coefficients.
-
-Part B2 simulates an aircraft's ascent from an altitude of 1000m to 2000m. This section  calculates the required trim 
-conditions at different stages of the climb, maintaining constant velocity while adjusting the flight path angle and 
-commands accordingly. A velcocity of 105m/s was tested, as V = 100 + U  where U is the day of birth of the oldest 
-member of the group. 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                           
-                            
-                                                          Section C
-                
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-Section C provides a user-friendly interface for simulating flight conditions. The interface allows the user to input desired 
-flight trim parameters—velocity (V) and flight path angle (γ) and displays the resulting angle of attack (α), thrust (T), and 
-elevator angle (δE). Users can also input step changes in thrust and elevator angle, along with a total simulation time, to 
-observe the aircraft's time response via plots of certain parameters against time. 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
 A message from the group: 
     
