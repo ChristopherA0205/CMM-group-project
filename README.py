@@ -42,21 +42,26 @@ The first file you should open is 'UserInterface.py'.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
 
 
-•	First open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the appropriate directory, to guarantee the expected operation of the User Interface (UI). Prior to running the script, please ensurethat the 'PySimpleGUI' module is installed in your Python environment, as this is a requirement for the code to run.
+•	First open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the appropriate 
+directory, to guarantee the expected operation of the User Interface (UI). Prior to running the script, please ensure that 
+the 'PySimpleGUI' module is installed in your Python environment, as this is a requirement for the code to run.
    
-•	Input values of ‘Velocity’ and ‘Flight Path Angle’ and press the ‘trim’ button to calculate dynamic equilibrium of the aircraft.
+•	Input values of ‘Velocity’ and ‘Flight Path Angle’ and press the ‘trim’ button to calculate dynamic equilibrium 
+of the aircraft.
 
-•	To simulate the response of the aircraft to changes, input the values shown (including ‘Initial Altitude’, the step changes in 
-  ‘Thrust’ and ‘Elevator Angle’, and the simulation duration before and after the step change’) and press the ‘evaluate’ button.
+•	To simulate the response of the aircraft to changes, input the values shown (including ‘Initial Altitude’, 
+the step changes in ‘Thrust’ and ‘Elevator Angle’, and the simulation duration before and after the step change’) 
+and press the ‘evaluate’ button.
 
-This simulation tool is designed to model the flight dynamics of a small aircraft. When the 'trim' function is executed, it takes the user-defined
-inputs and calculates the parameters at which the aircraft is in perfect dynamic equilibrium, also known as the 'trim condition'. Subsequently,
-a handful of these values are printed on the graphical interface to show that the calculations were executed as expected. 
+This simulation tool is designed to model the flight dynamics of a small aircraft. When the 'trim' function is executed, 
+it takes the user-defined inputs and calculates the parameters at which the aircraft is in perfect dynamic equilibrium, 
+also known as the 'trim condition'. Subsequently, a handful of these values are printed on the graphical interface to 
+show that the calculations were executed as expected. 
 
 The next section of the UI runs a simulation of how the flight dynamics change over time, starting at the previously 
-determined 'trim condition' and incorporating a user-defined 'step-change'. Upon initiating the evaluation, the software will 
-process your input, yielding aerodynamic data. These visualizations detail key flight dynamics, such as altitude and pitch angle 
-over time, allowing for in-depth analysis and design optimization.
+determined 'trim condition' and incorporating a user-defined 'step-change'. Upon initiating the evaluation, the 
+software will process your input, yielding aerodynamic data. These visualizations detail key flight dynamics,
+such as altitude and pitch angle over time, allowing for in-depth analysis and design optimization.
 
 IMPORTANT: Please find all of the main code which allows the UI to work in the MainCode.py file
 
