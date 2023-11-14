@@ -34,13 +34,13 @@ The first file you should open is 'UserInterface.py'.
 #### List of values that are required in the UI
 | Input | Description and Limitations | Units | Options (example) |
 | ------ | --------------------------- | ----- | ----------------- |
-| `Velocity` | Velocity of the aircraft must be positive, with an approx. max. value of 200 | `m/s` | 100 |
-| `Flight Path Angle` | Angle between the earth axis and trajectory, with an approx. value between -0.25 and 1 | `radians` | 0.05 |
-| `Initial Altitude` | Cruising altitude of a small aircraft should be somewhere between 1000 and 3000 | `metres` | 2000 |
-| `Value of Elevator Angle Increase` | Percentage change in Elevator Angle, should be between -100 and 100 | `%` | 10 |
-| `Value of Thrust Increase` | Thrust step change should be between -50 and 50 | `N` | -20 |
-| `Duration of Trim Condition` | How long the aircraft will stay at the trim condition calculated prior | `seconds` | 100 |
-| `Value of Climb Duration` | How long the simulation will last for after the step change is incorporated | `seconds` | 300 |
+| `Velocity` | Velocity of the aircraft must be positive, with an approximate maximum value of 200. | `m/s` | 100 |
+| `Flight Path Angle` | Angle between the earth axis and trajectory, with an approximate value between -0.25 and 1. | `radians` | 0.05 |
+| `Initial Altitude` | Cruising altitude of a small aircraft should be somewhere between 1000 and 3000. | `metres` | 2000 |
+| `Value of Elevator Angle Increase` | Percentage change in Elevator Angle, can be positive or negative but magnitude should be within a few 100 % of initial value. | `%` | 10 |
+| `Value of Thrust Increase` | Thrust step change can be positive or negative, with a magnitude of less than about 1000. | `N` | -20 |
+| `Duration of Trim Condition` | How long the aircraft will stay at the trim condition calculated prior. | `seconds` | 100 |
+| `Value of Climb Duration` | How long the simulation will last for after the step change is incorporated. | `seconds` | 300 |
 
 
 This simulation tool is designed to model the flight dynamics of a small aircraft. When the 'trim' function is executed, 
@@ -70,7 +70,7 @@ All the code in this file runs by the simulations in the MainCode.py, which is t
 as 'c' for ease of use. Additionally large data sets, such as the expieramental data used to calculate the coefficients
 are stored here. This file does not contain data specific for trim conditions.
 
-*Functions.py*: This file is used to store small functions such as CD, CM and CL which will be used repeatedly in the code
+*Functions.py*: This file is used to store small functions such as CD, CM and CL which will be ued repeatedly in the code
 to calculate aerodynamic parameters. This module is imported as 'F'. Large simulation functions are included in the main
 code. 
 
