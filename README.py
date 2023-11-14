@@ -42,10 +42,8 @@ The first file you should open is 'UserInterface.py'.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
 
 
-•	First open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the 
-  appropriate directory, to guarantee the expected operation of the User Interface (UI). Prior to running the script, please ensure 
-  that the 'PySimpleGUI' module is installed in your Python environment, as this is a requirement for the code to run.
-  
+•	First open and then execute the file ‘UserInterface.py’, making sure that ‘MainCode.py’ is in the appropriate directory, to guarantee the expected operation of the User Interface (UI). Prior to running the script, please ensurethat the 'PySimpleGUI' module is installed in your Python environment, as this is a requirement for the code to run.
+   
 •	Input values of ‘Velocity’ and ‘Flight Path Angle’ and press the ‘trim’ button to calculate dynamic equilibrium of the aircraft.
 
 •	To simulate the response of the aircraft to changes, input the values shown (including ‘Initial Altitude’, the step changes in 
