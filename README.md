@@ -37,7 +37,7 @@ The first file you should open is 'UserInterface.py'.
 | `Velocity` | Velocity of the aircraft must be positive, with an approximate maximum value of 200. | `m/s` | 100 |
 | `Flight Path Angle` | Angle between the earth axis and trajectory, with an approximate value between -0.25 and 1. | `radians` | 0.05 |
 | `Initial Altitude` | Cruising altitude of a small aircraft should be somewhere between 1000 and 3000. | `metres` | 2000 |
-| `Value of Elevator Angle Increase` | Percentage change in Elevator Angle, can be positive or negative but magnitude should be within a few 100 % of initial value. | `%` | 10 |
+| `Value of Elevator Angle Increase` | Percentage change in Elevator Angle, can be positive or negative but magnitude should be within a about 50% of initial value. | `%` | 10 |
 | `Value of Thrust Increase` | Thrust step change can be positive or negative, with a magnitude of less than about 1000. | `N` | -20 |
 | `Duration of Trim Condition` | How long the aircraft will stay at the trim condition calculated prior. | `seconds` | 100 |
 | `Value of Climb Duration` | How long the simulation will last for after the step change is incorporated. | `seconds` | 300 |
