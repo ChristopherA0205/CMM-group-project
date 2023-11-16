@@ -146,7 +146,7 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
         lambda t, y: SystemControl(t, y, pitchTime, climbTime, trimConditions, trimConditions2, elevatorChange, thrustChange),
         [0, t_end], 
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
-        t_eval=np.linspace(0, t_end, t_end * 50)
+        t_eval=np.linspace(0, t_end, 10000)
     )
     # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
