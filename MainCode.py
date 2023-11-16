@@ -321,7 +321,7 @@ def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
             lambda t, y: Combined_Systems(t, y, trimParams, trimParams2, pitchTime, climbTime),
             [0, t_end], 
             [0, trimParams[2], trimParams[3], trimParams[4], 0, -initialAltitude],
-            t_eval=np.linspace(0, t_end, t_end * 50)
+            t_eval=np.linspace(0, t_end, 10000)
         )
         # Update the final altitude achieved in the current iteration.
         finalAltitude = -y.y[5][-1]
