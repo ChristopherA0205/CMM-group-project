@@ -49,7 +49,7 @@ V_max = 210 # Set to 210 to include 200 in the range with a step size of 10.
 
 # Minimum and maximum flight path angles in radians for the simulation range.
 gamma_min = 0
-gamma_max = 1
+gamma_max = 2
 
 # Step sizes for iterating over the velocity and flight path angle ranges.
 V_step = 10
