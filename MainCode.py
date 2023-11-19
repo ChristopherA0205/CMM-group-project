@@ -64,23 +64,25 @@ def DisplaySimulation_A3(Data, initialAltitude=0):
    
     # Array of tuples containing variable names, values, titles for plots, and y-axis labels
     attributes = [
-        ('q', Data.y[0], "q Angular Velocity vs Time", "q [rad/s]"),
-        ('theta', Data.y[1], "${\Theta}$ Pitch Angle vs Time", "${\Theta}$ [$^{0}$]"),
-        ('ub', Data.y[2], "$u_{B}$ Body Axis Velocity vs Time", "$u_{B}$ [m/s]"),
-        ('wb', Data.y[3], "$w_{B}$ Body Axis Velocity vs Time", "$w_{B}$ [m/s]"),
-        ('xe', Data.y[4], "$x_{E}$ Horizontal Position vs Time", "$x_{e}$ [m]"),
-        ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "Altitude h [m]")
+        ('uB', Data.y[2], "$u_{B}$ Body Axis Velocity vs Time", "T17.$u_{B}$"),
+        ('wB', Data.y[3], "$w_{B}$ Body Axis Velocity vs Time", "T17.$w_{B}$"),
+        ('q', (Data.y[0]), "q Angular Velocity vs Time", "T17.q"),
+        ('theta', Data.y[1]*180/np.pi, "${\Theta}$ Pitch Angle vs Time", "T17.Theta"),
+        ('path angle gamma', (Data.y[1]-np.arctan2(Data.y[3], Data.y[2]))*180/np.pi, "$x_{E}$ Path angle Gamma vs Time", "T17.path angle gamma"),
+        ('zE', Data.y[5] - initialAltitude, "zE Altitude vs Time", "T17.zE"),
+        ('alpha',np.arctan2(Data.y[3], Data.y[2])*180/np.pi, "alpha vs Time", "T17.alpha"),
+        ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "T17.Altitude h"
+         )
     ]
 
-    fig, ax = plt.subplots(3, 2, figsize=(12, 10)) # Creating subplots for each attribute
+    fig, ax = plt.subplots(4, 2, figsize=(12, 10)) # Creating subplots for each attribute
 
     # Loop through each attribute and create its subplot
     
     for i, (attr_name, attr_values, title, ylabel) in enumerate(attributes):
         row, col = divmod(i, 2)
         ax[row, col].plot(t, attr_values)
-        ax[row, col].set_title(title, fontsize=12)
-        ax[row, col].set_ylabel(ylabel, rotation='horizontal')
+        ax[row, col].set_ylabel(ylabel)
         ax[row, col].set_xlabel("t [s]")
 
     plt.tight_layout()
@@ -146,7 +148,7 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
         lambda t, y: SystemControl(t, y, pitchTime, climbTime, trimConditions, trimConditions2, elevatorChange, thrustChange),
         [0, t_end], 
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
-        t_eval=np.linspace(0, t_end, 10000)
+        t_eval=np.linspace(0, t_end, t_end * 50)
     )
     # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
@@ -227,35 +229,48 @@ plot_trim_results(V_values, gamma_values, T_values, δE_values)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def DisplaySimulation_B2(Data, initialAltitude):
-    
     """
     Displays the simulation results for various aircraft state variables over time.
     Data: Simulation data containing time and state variables found using the ivp function
     initialAltitude: The initial altitude of the aircraft
-    """    
-    # Labels for plotting the state variables 
-    t = Data.t # Time array from the simulation data
+    """
+    t = Data.t  # Time array from the simulation data
+
+    # Labels for plotting the state variables
     labels = [
         ('$u_B$ Body Axis Velocity vs Time', '$u_B$ [m/s]'),
         ('$w_B$ Body Axis Velocity vs Time', '$w_B$ [m/s]'),
         ('$\\theta$ Pitch Angle vs Time', '$\\theta$ [rad]'),
         ('q Angular Velocity vs Time', 'q [rad/s]'),
         ('$x_E$ Horizontal Position vs Time', '$x_e$ [m]'),
-        ('Altitude vs Time', 'Altitude h [m]')
+        ('Altitude vs Time', 'Altitude h [m]'),
+        ('Path Angle Gamma vs Time', 'Path Angle Gamma [°]'),
+        ('Alpha vs Time', 'Alpha [°]')
     ]
-    # Extracting the state variables from the simulation data which was solved using the ivp function
-    variables = [Data.y[2], Data.y[3], Data.y[1], Data.y[0], Data.y[4], -Data.y[5]]
+
+    # Extracting the state variables from the simulation data
+    variables = [
+        Data.y[2], 
+        Data.y[3], 
+        Data.y[1], 
+        Data.y[0], 
+        Data.y[4], 
+        -Data.y[5],
+        (Data.y[1]-np.arctan2(Data.y[3], Data.y[2]))*180/np.pi,  # Path angle gamma
+        np.arctan2(Data.y[3], Data.y[2])*180/np.pi  # Alpha
+    ]
     
-    fig, ax = plt.subplots(3, 2, figsize=(12, 10))
+    fig, ax = plt.subplots(4, 2, figsize=(12, 16)) 
     
     for i, axi in enumerate(ax.flat):  # Looping through each variable to create its subplot
-        axi.plot(t, variables[i]) # Plotting the variable over time
-        axi.set_title(labels[i][0], fontsize=12) # Setting the title for each subplot
-        axi.set_ylabel(labels[i][1], rotation='horizontal') # Setting the y-axis label
-        axi.set_xlabel("t [s]") # Setting the x-axis label
+        axi.plot(t, variables[i])  # Plotting the variable over time
+        axi.set_title(labels[i][0], fontsize=12)  # Setting the title for each subplot
+        axi.set_ylabel(labels[i][1], rotation='vertical')  # Setting the y-axis label
+        axi.set_xlabel("t [s]")  # Setting the x-axis label
     
     plt.tight_layout()
     plt.show()
+    return fig
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
 """
@@ -321,7 +336,7 @@ def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
             lambda t, y: Combined_Systems(t, y, trimParams, trimParams2, pitchTime, climbTime),
             [0, t_end], 
             [0, trimParams[2], trimParams[3], trimParams[4], 0, -initialAltitude],
-            t_eval=np.linspace(0, t_end, 10000)
+            t_eval=np.linspace(0, t_end, t_end * 50)
         )
         # Update the final altitude achieved in the current iteration.
         finalAltitude = -y.y[5][-1]
@@ -337,33 +352,3 @@ def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
 
 # Executing the function with specific parameters to find the climb duration.
 climb_duration = Find_Climb_Time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
-
-def CodeValidation(Data, initialAltitude=0):
-    t = Data.t  #Time array from simulation data
-   
-    # Array of tuples containing variable names, values, titles for plots, and y-axis labels
-    attributes = [
-        ('uB', Data.y[2], "$u_{B}$ Body Axis Velocity vs Time", "T17.$u_{B}$"),
-        ('wB', Data.y[3], "$w_{B}$ Body Axis Velocity vs Time", "T17.$w_{B}$"),
-        ('q', (Data.y[0]), "q Angular Velocity vs Time", "T17.q"),
-        ('theta', Data.y[1]*180/np.pi, "${\Theta}$ Pitch Angle vs Time", "T17.Theta"),
-        ('path angle gamma', (Data.y[1]-np.arctan2(Data.y[3], Data.y[2]))*180/np.pi, "$x_{E}$ Path angle Gamma vs Time", "T17.path angle gamma"),
-        ('zE', Data.y[5] - initialAltitude, "zE Altitude vs Time", "T17.zE"),
-        ('alpha',np.arctan2(Data.y[3], Data.y[2])*180/np.pi, "alpha vs Time", "T17.alpha"),
-        ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "T17.Altitude h"
-         )
-    ]
-
-    fig, ax = plt.subplots(4, 2, figsize=(12, 10)) # Creating subplots for each attribute
-
-    # Loop through each attribute and create its subplot
-    
-    for i, (attr_name, attr_values, title, ylabel) in enumerate(attributes):
-        row, col = divmod(i, 2)
-        ax[row, col].plot(t, attr_values)
-        ax[row, col].set_ylabel(ylabel)
-        ax[row, col].set_xlabel("t [s]")
-
-    plt.tight_layout()
-    plt.show()  #Dispalying all the plots 
-    return fig
