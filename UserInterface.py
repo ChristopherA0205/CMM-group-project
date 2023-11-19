@@ -31,7 +31,7 @@ def draw_figure(canvas, figure):
 sg.theme('LightBlue7')
 
 layout = [[sg.Text('Please input values for velocity and flight path angle:'), sg.Text(size=(15,1))],
-          [sg.Text('Velocity, V (m/s):', size=(10, 1)), sg.Input(key='-VELOCITY-'), sg.Text('Flight Path angle, \u03b3 (rad):', size=(15, 1)), sg.Input(key='-FLIGHT_PATH_ANGLE-')],
+          [sg.Text('Velocity, V (m/s):', size=(15, 1)), sg.Input(key='-VELOCITY-'), sg.Text('Flight Path angle, \u03b3 (rad):', size=(20, 1)), sg.Input(key='-FLIGHT_PATH_ANGLE-')],
           [sg.Text('Resulting trim conditions:'), sg.Text(size=(2,1)), sg.Text('Angle of Attack, \u03b1 (rad):', size=(17, 1)), sg.Text(key='-Output_1-'), sg.Text('Thrust, T (N):', size=(10, 1)), sg.Text(key='-Output_2-'), sg.Text('Elevator Angle, \u03b4 (rad):', size=(17, 1)), sg.Text(key='-Output_3-')],
           [sg.Button('Trim')],
           [sg.Text('Initial Altitude (m):', size=(30, 1)), sg.Input(key='-INITIAL_ALTITUDE-')],
