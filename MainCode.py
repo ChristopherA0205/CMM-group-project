@@ -337,3 +337,33 @@ def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
 
 # Executing the function with specific parameters to find the climb duration.
 climb_duration = Find_Climb_Time(trimVelocity=105, trimGamma=0, t_end=700, initialAltitude=1000, maxAltitude=2000, pitchTime=10, climbVelocity=105, climbGamma=np.deg2rad(2), climbTimeGuess=200, climbStep=1)
+
+def CodeValidation(Data, initialAltitude=0):
+    t = Data.t  #Time array from simulation data
+   
+    # Array of tuples containing variable names, values, titles for plots, and y-axis labels
+    attributes = [
+        ('uB', Data.y[2], "$u_{B}$ Body Axis Velocity vs Time", "T17.$u_{B}$"),
+        ('wB', Data.y[3], "$w_{B}$ Body Axis Velocity vs Time", "T17.$w_{B}$"),
+        ('q', (Data.y[0]), "q Angular Velocity vs Time", "T17.q"),
+        ('theta', Data.y[1]*180/np.pi, "${\Theta}$ Pitch Angle vs Time", "T17.Theta"),
+        ('path angle gamma', (Data.y[1]-np.arctan2(Data.y[3], Data.y[2]))*180/np.pi, "$x_{E}$ Path angle Gamma vs Time", "T17.path angle gamma"),
+        ('zE', Data.y[5] - initialAltitude, "zE Altitude vs Time", "T17.zE"),
+        ('alpha',np.arctan2(Data.y[3], Data.y[2])*180/np.pi, "alpha vs Time", "T17.alpha"),
+        ('altitude', Data.y[5] * -1 + initialAltitude, "h Altitude vs Time", "T17.Altitude h"
+         )
+    ]
+
+    fig, ax = plt.subplots(4, 2, figsize=(12, 10)) # Creating subplots for each attribute
+
+    # Loop through each attribute and create its subplot
+    
+    for i, (attr_name, attr_values, title, ylabel) in enumerate(attributes):
+        row, col = divmod(i, 2)
+        ax[row, col].plot(t, attr_values)
+        ax[row, col].set_ylabel(ylabel)
+        ax[row, col].set_xlabel("t [s]")
+
+    plt.tight_layout()
+    plt.show()  #Dispalying all the plots 
+    return fig
