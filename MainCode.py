@@ -75,7 +75,7 @@ def DisplaySimulation_A3(Data, initialAltitude=0):
          )
     ]
 
-    fig, ax = plt.subplots(4, 2, figsize=(12, 10)) # Creating subplots for each attribute
+    fig, ax = plt.subplots(4, 2, figsize=(8, 6)) # Creating subplots for each attribute
 
     # Loop through each attribute and create its subplot
     
