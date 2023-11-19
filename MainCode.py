@@ -148,7 +148,7 @@ def run_simulation(trimVelocity, trimGamma, t_end, pitchTime, climbTime, elevato
         lambda t, y: SystemControl(t, y, pitchTime, climbTime, trimConditions, trimConditions2, elevatorChange, thrustChange),
         [0, t_end], 
         [0, trimConditions[2], trimConditions[3], trimConditions[4], 0, 0], 
-        t_eval=np.linspace(0, t_end, 10000)
+        t_eval=np.linspace(0, t_end, t_end * 50)
     )
     # Display the results of the simulation  
     DisplaySimulation_A3(y, initialAltitude)
@@ -172,8 +172,7 @@ plot_trim_results function, which creates a series of subplots.
 
 # Generate arrays of velocity and flight path angle values within the specified range
 V_values = np.arange(trim.V_min, trim.V_max, trim.V_step)
-# Ensure gamma_values are in radians, if they were originally in degrees, convert them using np.deg2rad
-gamma_values = np.deg2rad(np.arange(trim.gamma_min, trim.gamma_max, trim.gamma_step))
+gamma_values = np.arange(trim.gamma_min, trim.gamma_max, trim.gamma_step)
 
 # Initialize arrays to store the results of thrust and elevator deflection for each combination
 T_values = np.empty((len(V_values), len(gamma_values)))
@@ -183,8 +182,9 @@ T_values = np.empty((len(V_values), len(gamma_values)))
 for i, V in enumerate(V_values):
     for j, γ in enumerate(gamma_values):
         _, delta_trim, _, _, _, thrust_trim = calculate_trim_conditions(V, γ)
-        T_values[i, j] = thrust_trim  # Store thrust trim value
-        δE_values[i, j] = delta_trim  # Store elevator deflection trim value in radians
+        T_values[i, j] = thrust_trim # Store thrust trim value
+        δE_values[i, j] = np.rad2deg(delta_trim) # Store elevator deflection trim value in degrees
+
 
 def plot_subplot(ax, x_data, y_data_series, x_label, y_label, title, legend_labels):
     for y_data, label in zip(y_data_series, legend_labels):
@@ -196,32 +196,32 @@ def plot_subplot(ax, x_data, y_data_series, x_label, y_label, title, legend_labe
 
 def plot_trim_results(V_values, gamma_values, T_values, δE_values):
     plt.figure(figsize=(12, 12))
+    γ_degrees = np.rad2deg(gamma_values)  # Pre-calculate for reuse
 
     # Thrust vs. Velocity subplot
     ax1 = plt.subplot(2, 2, 1)
-    plot_subplot(ax1, V_values, T_values.T, 'Velocity (V) [m/s]', 'Thrust (T) [N]',
-                 'Thrust vs. Velocity', [f'γ = {γ:.2f} rad' for γ in gamma_values])
+    plot_subplot(ax1, V_values, T_values.T, 'Velocity (V)', 'Thrust (T)',
+                 'Thrust vs. Velocity', [f'γ = {deg:.1f}°' for deg in γ_degrees])
 
     # Elevator Angle vs. Velocity subplot
     ax2 = plt.subplot(2, 2, 4)
-    plot_subplot(ax2, V_values, δE_values.T, 'Velocity (V) [m/s]', 'Elevator Angle (δE) [rad]',
-                 'Elevator Angle vs. Velocity', [f'γ = {γ:.2f} rad' for γ in gamma_values])
+    plot_subplot(ax2, V_values, δE_values.T, 'Velocity (V)', 'Elevator Angle (δE) (degrees)',
+                 'Elevator Angle vs. Velocity', [f'γ = {deg:.1f}°' for deg in γ_degrees])
 
     # Elevator Angle vs. Flight Path Angle subplot
     ax3 = plt.subplot(2, 2, 2)
-    plot_subplot(ax3, gamma_values, δE_values, 'Flight Path Angle (γ) [rad]', 'Elevator Angle (δE) [rad]',
+    plot_subplot(ax3, γ_degrees, δE_values, 'Flight Path Angle (γ) (degrees)', 'Elevator Angle (δE) (degrees)',
                  'Elevator Angle vs. Flight Path Angle', [f'V = {V} m/s' for V in V_values])
 
     # Thrust vs. Flight Path Angle subplot
     ax4 = plt.subplot(2, 2, 3)
-    plot_subplot(ax4, gamma_values, T_values, 'Flight Path Angle (γ) [rad]', 'Thrust (T) [N]',
+    plot_subplot(ax4, γ_degrees, T_values, 'Flight Path Angle (γ) (degrees)', 'Thrust (T)',
                  'Thrust vs. Flight Path Angle', [f'V = {V} m/s' for V in V_values])
 
     plt.tight_layout()
     plt.show()
 
 plot_trim_results(V_values, gamma_values, T_values, δE_values)
-
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -336,7 +336,7 @@ def Find_Climb_Time(trimVelocity, trimGamma, t_end, initialAltitude, maxAltitude
             lambda t, y: Combined_Systems(t, y, trimParams, trimParams2, pitchTime, climbTime),
             [0, t_end], 
             [0, trimParams[2], trimParams[3], trimParams[4], 0, -initialAltitude],
-            t_eval=np.linspace(0, t_end, 10000)
+            t_eval=np.linspace(0, t_end, t_end * 50)
         )
         # Update the final altitude achieved in the current iteration.
         finalAltitude = -y.y[5][-1]
