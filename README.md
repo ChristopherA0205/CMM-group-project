@@ -13,7 +13,7 @@
 **Hello and welcome to the group 17 flight simulator!**
 
 This file will explain to you step by step what each component of the code does, and how to make the most out of it.  
-The first file you should open is 'B_UserInterface.py'. Files are accompanied with alphabets to organize them within the
+The first file you should open is 'A_UserInterface.py'. Files are accompanied with alphabets to organize them within the
 directory.
 
 ------------------------------------------------------------------------------------------------------------------------                        
@@ -25,7 +25,7 @@ directory.
 •	Prior to running the script, *please ensure* that the 'PySimpleGUI' module is installed in your 
   Python environment, as this is a requirement for the code to run.
   
-•	Once installed, open and then execute the file ‘B_UserInterface.py’, making sure that ‘C_MainCode.py’ is in the 
+•	Once installed, open and then execute the file ‘A_UserInterface.py’, making sure that ‘B_MainCode.py’ is in the 
   appropriate directory, to guarantee the expected operation of the User Interface (UI). 
   
 •	Input specified values and press the ‘**trim**’ button to calculate dynamic equilibrium of the aircraft.
@@ -62,20 +62,20 @@ such as altitude and pitch angle over time, allowing for in-depth analysis and d
   
 ------------------------------------------------------------------------------------------------------------------------
 
-*B_UserInterface.py*: The first file you should open. It launches the graphical UI used for testing and simulations.
+*A_UserInterface.py*: The first file you should open. It launches the graphical UI used for testing and simulations.
 All the code in this file runs by the simulations in the MainCode.py, which is then imported to this file for the user to test.
 
-*C_MainCode.py*: The file where all the computations are done, then imported to the UserInterface.py file.
+*B_MainCode.py*: The file where all the computations are done, then imported to the UserInterface.py file.
 
-*D_Constants_and_Data.py*: This file was created in order to store all the constants used in the code. The module is then imported
+*C_Constants_and_Data.py*: This file was created in order to store all the constants used in the code. The module is then imported
 as 'c' for ease of use. Additionally large data sets, such as the expieramental data used to calculate the coefficients
 are stored here. This file does not contain data specific for trim conditions.
 
-*E_Functions.py*: This file is used to store small functions such as CD, CM and CL which will be ued repeatedly in the code
+*D_Functions.py*: This file is used to store small functions such as CD, CM and CL which will be ued repeatedly in the code
 to calculate aerodynamic parameters. This module is imported as 'F'. Large simulation functions are included in the main
 code. 
 
-*F_Trim_Conditions.py*: Although containing constants, this module is specific for trim condition values in order to import
+*E_Trim_Conditions.py*: Although containing constants, this module is specific for trim condition values in order to import
 them in the later calculations of late part A and part B. 
 
 ------------------------------------------------------------------------------------------------------------------------
