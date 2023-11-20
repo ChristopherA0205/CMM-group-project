@@ -3,9 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate, optimize
-import Trim_Conditions as trim
-import Constants_and_Data as c
+import 4_Constants_and_Data as c
 import Functions as F
+import Trim_Conditions as trim
+
+ 
 
 # Defining physical constants related to gravity, air properties, and aircraft characteristics
 '''
