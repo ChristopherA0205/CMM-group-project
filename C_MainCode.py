@@ -3,9 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate, optimize
-import 4_Constants_and_Data as c
-import 5_Functions as F
-import 6_Trim_Conditions as trim
+import D_Constants_and_Data as c
+import E_Functions as F
+import F_Trim_Conditions as trim
 
  
 
