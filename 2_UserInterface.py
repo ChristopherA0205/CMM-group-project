@@ -11,7 +11,7 @@ The GUI then outputs the plots of how some chosen parameters behave during the s
 # importing necessary modules for user interface
 
 import PySimpleGUI as sg
-import MainCode as mc
+import 3_MainCode as mc
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
